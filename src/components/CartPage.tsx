@@ -5,10 +5,7 @@ import {
   Plus,
   Minus,
   ShoppingBag,
-  Truck,
-  CreditCard,
-  Shield,
-  CheckCircle,
+  
   ArrowLeft,
   
 } from "lucide-react";
@@ -115,7 +112,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
       const { latitude, longitude } = await getCoordinates();
 
       const orderRequest = {
-        userId,
+        userId: userId!,
         products,
         address: `${shippingInfo.street}, ${shippingInfo.city}, ${shippingInfo.state}, ${shippingInfo.country}`,
         pincode: parseInt(shippingInfo.pincode),
