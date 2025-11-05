@@ -24,11 +24,7 @@ const AnimatedSection = ({ children, delay = 0 }: any) => {
   return (
     <motion.section
       ref={ref}
-      style={{
-        padding: "2rem 1rem",
-        backgroundColor: "#1a0f1a",
-        borderTop: "4px solid #FFD369",
-      }}
+      className="py-8 px-4 bg-[#1a0f1a] border-t-4 border-[#FFD369]"
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.6, delay }}
@@ -38,62 +34,36 @@ const AnimatedSection = ({ children, delay = 0 }: any) => {
   );
 };
 
-const CategoryCard = ({ category, onClick }: any) => (
+const CategoryCard = ({
+  category,
+  onClick,
+}: {
+  category: { name: string; image: string };
+  onClick: (name: string) => void;
+}) => (
   <motion.div
     whileHover={{ scale: 1.06 }}
     whileTap={{ scale: 0.96 }}
-    style={{
-      cursor: "pointer",
-      position: "relative",
-      borderRadius: "1rem",
-      overflow: "hidden",
-      boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
-      width: "100%",
-      aspectRatio: "3 / 4",
-      maxWidth: "220px",
-      transition: "transform 0.3s ease",
-    }}
+    className="cursor-pointer relative rounded-2xl overflow-hidden shadow-lg w-full aspect-3/4 max-w-[220px] transition-transform duration-300"
     onClick={() => onClick(category.name)}
   >
     <motion.img
       src={category.image}
       alt={category.name}
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        display: "block",
-      }}
+      className="w-full h-full object-cover block"
       whileHover={{ scale: 1.1 }}
     />
-    <div
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: "linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))",
-        padding: "0.8rem",
-        textAlign: "center",
-      }}
-    >
-      <p
-        style={{
-          color: "#FFD369",
-          fontWeight: "bold",
-          fontSize: "1rem",
-          margin: 0,
-          letterSpacing: "0.5px",
-          textTransform: "uppercase",
-        }}
-      >
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient from-black/80 to-black/20 p-3 text-center">
+      <p className="text-[#FFD369] font-bold text-base uppercase tracking-wide">
         {category.name}
       </p>
     </div>
   </motion.div>
 );
 
-export default function ShopByCategory({ setCurrentPage }: FeaturedProductsProps) {
+export default function ShopByCategory({
+  setCurrentPage,
+}: FeaturedProductsProps) {
   const categories = [
     { id: 1, name: "Earrings", image: earing },
     { id: 2, name: "Skincare", image: skincare },
@@ -110,35 +80,21 @@ export default function ShopByCategory({ setCurrentPage }: FeaturedProductsProps
 
   return (
     <AnimatedSection delay={0.2}>
-      <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          
-          <div
-            style={{
-              width: "80px",
-              height: "4px",
-              backgroundColor: "#FFD369",
-              margin: "0 auto",
-              borderRadius: "2px",
-            }}
-          ></div>
+      <div className="max-w-[1300px] mx-auto">
+        {/* Header divider */}
+        <div className="text-center mb-4">
+          <div className="w-20 h-1 bg-[#FFD369] mx-auto rounded"></div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(140px, 1fr))",
-            gap: "1.5rem",
-            justifyItems: "center",
-            padding: "0 0.5rem",
-          }}
-        >
+        {/* Category Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 justify-items-center px-2">
           {categories.map((category) => (
             <CategoryCard
               key={category.id}
               category={category}
-              onClick={(name: string) => setCurrentPage("search", { category: name })}
+              onClick={(name: string) =>
+                setCurrentPage("search", { category: name })
+              }
             />
           ))}
         </div>

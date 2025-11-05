@@ -3,7 +3,8 @@ import { useRef, useState } from "react";
 import scrunchies from "../assets/srunchies.jpeg";
 import nosepin from "../assets/nosepins.jpeg";
 import clutcher from "../assets/Clutcher.jpg";
-import napkins from "../assets/Synatry napkins.jpg"
+import napkins from "../assets/Synatry napkins.jpg";
+
 interface FeaturedProductsProps {
   setCurrentPage: (
     page: string,
@@ -18,11 +19,7 @@ const AnimatedSection = ({ children, delay = 0 }: any) => {
   return (
     <motion.section
       ref={ref}
-      style={{
-        paddingTop: "2rem",
-        paddingBottom: "2rem",
-        backgroundColor: "#1a0f1a",
-      }}
+      className="py-8 bg-[#1a0f1a]"
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.6, delay }}
@@ -44,8 +41,7 @@ export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
     { name: "Scrunchies", image: scrunchies },
     { name: "Nosepin", image: nosepin },
     { name: "Clutcher", image: clutcher },
-    { name: "sanitary napkins", image: napkins },
-
+    { name: "Sanitary Napkins", image: napkins },
   ];
 
   const handleSearch = (query?: string) => {
@@ -56,75 +52,23 @@ export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
 
   return (
     <AnimatedSection delay={0.2}>
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 1rem",
-          textAlign: "center",
-        }}
-      >
-        
-
-        {/* Predefined name cards */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(160px, 1fr))",
-            gap: "2rem",
-            justifyItems: "center",
-          }}
-        >
+      <div className="max-w-6xl mx-auto px-4 text-center">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-8 justify-items-center">
           {predefinedNames.map((item) => (
             <motion.div
               key={item.name}
               whileHover={{ scale: 1.08, y: -5 }}
               whileTap={{ scale: 0.96 }}
-              style={{
-                cursor: "pointer",
-                borderRadius: "1rem",
-                overflow: "hidden",
-                width: "100%",
-                maxWidth: "200px",
-                aspectRatio: "3/4",
-                position: "relative",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-                transition: "box-shadow 0.3s ease",
-              }}
+              className="cursor-pointer rounded-2xl overflow-hidden w-full max-w-[200px] aspect-3/4 relative shadow-lg hover:shadow-xl transition-shadow duration-300"
               onClick={() => handleSearch(item.name)}
             >
               <motion.img
                 src={item.image}
                 alt={item.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.4s ease",
-                }}
+                className="w-full h-full object-cover transition-transform duration-400"
               />
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  
-                  display: "flex",
-                  alignItems: "flex-end",
-                  justifyContent: "center",
-                  padding: "1rem",
-                }}
-              >
-                <p
-                  style={{
-                    color: "#FFD369",
-                    fontWeight: "bold",
-                    margin: 0,
-                    fontSize: "1rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
+              <div className="absolute inset-0 flex items-end justify-center p-4">
+                <p className="text-[#FFD369] font-bold text-sm uppercase tracking-wide">
                   {item.name}
                 </p>
               </div>

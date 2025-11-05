@@ -30,10 +30,10 @@ export default function BlogPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#1a0f1a] text-white">
+    <div className="min-h-screen bg-brand-background text-white">
       {/* Hero Section */}
-      <section className="py-16 text-center bg-[#1C3A2E]">
-        <h1 className="text-4xl lg:text-5xl font-bold text-[#FFD369] mb-4">
+      <section className="py-16 text-center bg-brand-section">
+        <h1 className="text-4xl lg:text-5xl font-bold text-brand-accent mb-4">
           Beauty Blog
         </h1>
         <p className="text-lg lg:text-xl text-white/80 max-w-2xl mx-auto">
@@ -52,7 +52,7 @@ export default function BlogPage() {
             viewport={{ once: true }}
             whileHover={{ scale: 1.03 }}
           >
-            <Card className="bg-[#4B1C3F] border-[#FFD369]/20 overflow-hidden hover:border-[#FFD369] transition-all duration-300 h-full flex flex-col">
+            <Card className="bg-brand-card border-brand-accent/20 overflow-hidden hover:border-brand-accent transition-all duration-300 h-full flex flex-col">
               <div className="overflow-hidden">
                 <ImageWithFallback
                   src={post.image}
@@ -61,7 +61,7 @@ export default function BlogPage() {
                 />
               </div>
               <CardContent className="p-4 lg:p-6 flex flex-col flex-1">
-                <p className="text-sm text-[#FFD369] mb-2">{post.date}</p>
+                <p className="text-sm text-brand-accent mb-2">{post.date}</p>
                 <h3 className="font-bold text-white text-lg mb-3">
                   {post.title}
                 </h3>
@@ -70,7 +70,7 @@ export default function BlogPage() {
                 </p>
                 <Button
                   variant="ghost"
-                  className="text-[#FFD369] hover:text-white p-0"
+                  className="text-brand-accent hover:text-white p-0"
                 >
                   Read More <ArrowRight className="ml-1 w-4 h-4" />
                 </Button>

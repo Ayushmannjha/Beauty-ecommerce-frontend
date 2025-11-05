@@ -11,8 +11,8 @@ import { HomePageApi } from "../components/services/homepage";
 
 interface SearchPageProps {
   setCurrentPage: (page: string, options?: any) => void;
-  setSelectedProduct: (product: Product) => void;
-  onAddToCart: (product: Product, quantity?: number) => void;
+  setSelectedProduct?: (product: Product) => void;
+  onAddToCart?: (product: Product, quantity?: number) => void;
 }
 
 interface FilterState {
@@ -25,21 +25,17 @@ interface FilterState {
 
 export default function SearchPage({
   setCurrentPage,
-
   onAddToCart,
 }: SearchPageProps) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  // query params (these trigger the initial fetch)
   const qName = params.get("name") || "";
   const qCategory = params.get("category") || "";
   const qBrand = params.get("brand") || "";
   const qPrice = params.get("price") ? Number(params.get("price")) : undefined;
 
-  // allProducts: results returned from API (based on name/category/brand/price)
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  // products: result after applying client-side filters (rating, inStock, price range, categories/brands)
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -47,24 +43,25 @@ export default function SearchPage({
   const { addToCart, items: cartItems } = useCart();
 
   const categoryOptions = [
-    "Hair accesories",
-"Make-up essesntials",
-"Rings",
-"Hair care",
-"Earings",
-"Perfumes", 
-"Hand-wash",
-"Electronics", 
-"Sanitary pads ",
-"Hair removal" ,
-"Skincare",
-"Home decorative items",
-"Kitchen essentials" ,
-"Oral care",
-"Basic needs",
-"Personal care",
-"Bangles",
+    "Hair accessories",
+    "Make-up essentials",
+    "Rings",
+    "Hair care",
+    "Earrings",
+    "Perfumes",
+    "Hand-wash",
+    "Electronics",
+    "Sanitary pads",
+    "Hair removal",
+    "Skincare",
+    "Home decorative items",
+    "Kitchen essentials",
+    "Oral care",
+    "Basic needs",
+    "Personal care",
+    "Bangles",
   ];
+
   const brandOptions = [
     "LuxeBeauty",
     "ColorPro",
@@ -82,7 +79,7 @@ export default function SearchPage({
     inStock: false,
   });
 
-  // keep filters in sync when qCategory/qBrand/qPrice change (URL driven)
+  // Keep filters in sync with URL params
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
@@ -92,7 +89,6 @@ export default function SearchPage({
     }));
   }, [qCategory, qBrand, qPrice]);
 
-  // Active filters count (used for Clear All)
   const activeFiltersCount =
     filters.categories.length +
     filters.brands.length +
@@ -100,12 +96,9 @@ export default function SearchPage({
     (filters.inStock ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
 
-  // INITIAL FETCH:
-  // Only fetch when at least one initial criteria is present:
-  // (name OR category OR brand OR price)
+  // Fetch products based on initial URL filters
   useEffect(() => {
     const fetchProducts = async () => {
-      // If no search/filter criteria from URL, don't fetch all products — show no products.
       if (!qName && !qCategory && !qBrand && qPrice === undefined) {
         setAllProducts([]);
         setProducts([]);
@@ -130,7 +123,6 @@ export default function SearchPage({
           results = res.data;
         }
 
-        // Save the raw results and initialize filtered view to the same set
         setAllProducts(results || []);
         setProducts(results || []);
       } catch (err) {
@@ -143,38 +135,33 @@ export default function SearchPage({
     };
 
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qName, qCategory, qBrand, qPrice]);
 
-  // CLIENT-SIDE FILTERING:
-  // Whenever the user toggles filters (rating, inStock, priceRange, categories, brands),
-  // we filter the previously fetched allProducts locally.
+  // Apply client-side filters
   useEffect(() => {
-    // Start from allProducts and apply local filters
     let filtered = [...allProducts];
 
-    // categories (if any selected)
     if (filters.categories.length > 0) {
-      filtered = filtered.filter((p) => filters.categories.includes(p.category || "" ));
+      filtered = filtered.filter((p) =>
+        filters.categories.includes(p.category || "")
+      );
     }
 
-    // brands (if any selected)
     if (filters.brands.length > 0) {
-      filtered = filtered.filter((p) => filters.brands.includes(p.brand || "" ));
+      filtered = filtered.filter((p) =>
+        filters.brands.includes(p.brand || "")
+      );
     }
 
-    // price range
     const [minPrice, maxPrice] = filters.priceRange;
-    if (minPrice > 0 || maxPrice < 200) {
-      filtered = filtered.filter((p) => p.price >= minPrice && p.price <= maxPrice);
-    }
+    filtered = filtered.filter(
+      (p) => p.price >= minPrice && p.price <= maxPrice
+    );
 
-    // rating
     if (filters.rating > 0) {
       filtered = filtered.filter((p) => p.rating >= filters.rating);
     }
 
-    // inStock
     if (filters.inStock) {
       filtered = filtered.filter((p) => !!p.stock);
     }
@@ -182,53 +169,46 @@ export default function SearchPage({
     setProducts(filtered);
   }, [filters, allProducts]);
 
-  // Helpers to update filters
-  const handleFilterChange = (filterType: keyof FilterState, value: any) =>
-    setFilters((prev) => ({ ...prev, [filterType]: value }));
+  const handleFilterChange = (key: keyof FilterState, value: any) =>
+    setFilters((prev) => ({ ...prev, [key]: value }));
 
-  const toggleCategoryFilter = (category: string) =>
+  const toggleFilter = (
+    key: "categories" | "brands",
+    value: string
+  ): void => {
     setFilters((prev) => ({
       ...prev,
-      categories: prev.categories.includes(category)
-        ? prev.categories.filter((c) => c !== category)
-        : [...prev.categories, category],
+      [key]: prev[key].includes(value)
+        ? prev[key].filter((v) => v !== value)
+        : [...prev[key], value],
     }));
-
-  const toggleBrandFilter = (brand: string) =>
-    setFilters((prev) => ({
-      ...prev,
-      brands: prev.brands.includes(brand)
-        ? prev.brands.filter((b) => b !== brand)
-        : [...prev.brands, brand],
-    }));
+  };
 
   const clearAllFilters = () =>
-    setFilters({ categories: [], brands: [], priceRange: [0, 200], rating: 0, inStock: false });
+    setFilters({
+      categories: [],
+      brands: [],
+      priceRange: [0, 200],
+      rating: 0,
+      inStock: false,
+    });
 
-  // Add to cart (prevent adding if out of stock)
   const handleAddToCart = (product: Product) => {
-    const isOutOfStock = !product.stock;
-    if (isOutOfStock) return; // lock out
-    const inCart = cartItems.some((i) => i.productId === product.productId);
+    if (!product.stock) return;
 
+    const inCart = cartItems.some((i) => i.productId === product.productId);
     if (inCart) {
-      // navigate to cart via provided API
       setCurrentPage("cart");
     } else {
-      // add both to context and parent callback
       addToCart(product);
-      if (onAddToCart) onAddToCart(product, 1);
+      onAddToCart?.(product, 1);
     }
   };
 
-  // Click product -> set selected product (parent), then navigate to detail
- 
-
-  // UI: filter sidebar
   const FilterSidebar = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 text-sm">
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">Filters</h3>
+        <h3 className="font-semibold">Filters</h3>
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAllFilters}>
             Clear All ({activeFiltersCount})
@@ -240,16 +220,18 @@ export default function SearchPage({
       <div className="space-y-2">
         <h4 className="font-medium">Categories</h4>
         {categoryOptions.map((cat) => (
-          <div key={cat} className="flex items-center space-x-2">
+          <label
+            key={cat}
+            htmlFor={`cat-${cat}`}
+            className="flex items-center space-x-2 cursor-pointer"
+          >
             <Checkbox
-              id={`category-${cat}`}
+              id={`cat-${cat}`}
               checked={filters.categories.includes(cat)}
-              onCheckedChange={() => toggleCategoryFilter(cat)}
+              onCheckedChange={() => toggleFilter("categories", cat)}
             />
-            <label htmlFor={`category-${cat}`} className="text-sm cursor-pointer">
-              {cat}
-            </label>
-          </div>
+            <span>{cat}</span>
+          </label>
         ))}
       </div>
 
@@ -258,17 +240,19 @@ export default function SearchPage({
       {/* Brands */}
       <div className="space-y-2">
         <h4 className="font-medium">Brands</h4>
-        {brandOptions.map((b) => (
-          <div key={b} className="flex items-center space-x-2">
+        {brandOptions.map((brand) => (
+          <label
+            key={brand}
+            htmlFor={`brand-${brand}`}
+            className="flex items-center space-x-2 cursor-pointer"
+          >
             <Checkbox
-              id={`brand-${b}`}
-              checked={filters.brands.includes(b)}
-              onCheckedChange={() => toggleBrandFilter(b)}
+              id={`brand-${brand}`}
+              checked={filters.brands.includes(brand)}
+              onCheckedChange={() => toggleFilter("brands", brand)}
             />
-            <label htmlFor={`brand-${b}`} className="text-sm cursor-pointer">
-              {b}
-            </label>
-          </div>
+            <span>{brand}</span>
+          </label>
         ))}
       </div>
 
@@ -279,13 +263,15 @@ export default function SearchPage({
         <h4 className="font-medium">Price Range</h4>
         <Slider
           value={filters.priceRange}
-          onValueChange={(v) => handleFilterChange("priceRange", v as [number, number])}
+          onValueChange={(v) =>
+            handleFilterChange("priceRange", v as [number, number])
+          }
           min={0}
           max={200}
           step={5}
           className="w-full"
         />
-        <div className="flex justify-between text-sm text-muted-foreground">
+        <div className="flex justify-between text-muted-foreground">
           <span>₹{filters.priceRange[0]}</span>
           <span>₹{filters.priceRange[1]}</span>
         </div>
@@ -297,44 +283,57 @@ export default function SearchPage({
       <div className="space-y-2">
         <h4 className="font-medium">Minimum Rating</h4>
         {[4, 3, 2, 1].map((r) => (
-          <div key={r} className="flex items-center space-x-2">
+          <label
+            key={r}
+            htmlFor={`rating-${r}`}
+            className="flex items-center space-x-2 cursor-pointer"
+          >
             <Checkbox
               id={`rating-${r}`}
               checked={filters.rating === r}
-              onCheckedChange={() => handleFilterChange("rating", filters.rating === r ? 0 : r)}
+              onCheckedChange={() =>
+                handleFilterChange("rating", filters.rating === r ? 0 : r)
+              }
             />
-            <label htmlFor={`rating-${r}`} className="flex items-center text-sm cursor-pointer">
-              {Array.from({ length: r }, (_, i) => (
-                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="flex items-center">
+              {Array.from({ length: r }).map((_, i) => (
+                <Star
+                  key={i}
+                  className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                />
               ))}
               <span className="ml-1">& Up</span>
-            </label>
-          </div>
+            </span>
+          </label>
         ))}
       </div>
 
       <Separator />
 
       {/* In Stock */}
-      <div className="flex items-center space-x-2">
+      <label
+        htmlFor="in-stock"
+        className="flex items-center space-x-2 cursor-pointer"
+      >
         <Checkbox
           id="in-stock"
           checked={filters.inStock}
           onCheckedChange={(c) => handleFilterChange("inStock", c)}
         />
-        <label htmlFor="in-stock" className="text-sm cursor-pointer">
-          In Stock Only
-        </label>
-      </div>
+        <span>In Stock Only</span>
+      </label>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#0f0a10] text-white">
       <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-        {/* Mobile filter dropdown */}
+        {/* Mobile Filter */}
         <div className="lg:hidden mb-4">
-          <Button onClick={() => setDropdownOpen(!dropdownOpen)} className="w-full justify-between">
+          <Button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="w-full justify-between bg-[#4b1c4f] hover:bg-[#632a68]"
+          >
             Filters {dropdownOpen ? "▲" : "▼"}
           </Button>
           {dropdownOpen && (
@@ -344,40 +343,37 @@ export default function SearchPage({
           )}
         </div>
 
-        {/* Desktop sidebar */}
-        <div className="hidden lg:block w-64 flex-shrink-0 sticky top-24">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-24">
           <FilterSidebar />
-        </div>
+        </aside>
 
         {/* Products */}
-        <div className="flex-1">
+        <main className="flex-1">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-lg">Loading...</div>
+            <div className="flex items-center justify-center py-12 text-lg">
+              Loading...
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 lg:gap-6 justify-items-center">
               {products.map((product) => {
-                const inCart = cartItems.some((i) => i.productId === product.productId);
+                const inCart = cartItems.some(
+                  (i) => i.productId === product.productId
+                );
                 const isOutOfStock = !product.stock;
-
-                // button text logic
-                const buttonText = isOutOfStock ? "Out of Stock" : inCart ? "Go to Cart" : "Add to Cart";
+                const buttonText = isOutOfStock
+                  ? "Out of Stock"
+                  : inCart
+                  ? "Go to Cart"
+                  : "Add to Cart";
 
                 return (
                   <div key={product.productId} className="w-full">
-                    <div
-                      
-                      className="cursor-pointer"
-                      role="button"
-                      tabIndex={0}
-                    >
+                    <div className="cursor-pointer">
                       <ProductCard
                         product={product}
                         onAddToCart={() => {
-                          // prevent adding out of stock
-                          if (isOutOfStock) return;
-                          handleAddToCart(product);
+                          if (!isOutOfStock) handleAddToCart(product);
                         }}
                         buttonText={buttonText}
                       />
@@ -387,9 +383,11 @@ export default function SearchPage({
               })}
             </div>
           ) : (
-            <p className="text-center text-lg">No products found.</p>
+            <p className="text-center text-lg py-10 text-gray-400">
+              No products found.
+            </p>
           )}
-        </div>
+        </main>
       </div>
     </div>
   );

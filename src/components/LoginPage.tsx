@@ -75,7 +75,7 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
   ));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4 relative overflow-hidden">
       {floatingElements}
 
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4gPGcgZmlsbD0iIzAwMCIgZmlsbC1vcGFjaXR5PSIwLjAzIj4gPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIvPiA8Y2lyY2xlIGN4PSI0MCIgY3k9IjQwIiByPSIyIi8+IDwvZz4gPC9nPiA8L3N2Zz4=')] opacity-30"></div>

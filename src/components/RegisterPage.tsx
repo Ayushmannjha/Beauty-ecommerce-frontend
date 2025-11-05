@@ -114,7 +114,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
         <motion.div
           variants={successVariants}
           initial="hidden"
@@ -137,7 +137,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"

@@ -13,78 +13,21 @@ interface PriceProductsProps {
   onSelectPrice: (price: number) => void;
 }
 
-export default function PriceProducts({ products, onSelectPrice }: PriceProductsProps) {
+export default function PriceProducts({
+  products,
+  onSelectPrice,
+}: PriceProductsProps) {
   return (
-    <div
-      style={{
-        position: "relative",
-        padding: "3rem 1rem",
-        textAlign: "center",
-        overflow: "hidden",
-      }}
-    >
+    <div className="relative py-12 px-4 text-center overflow-hidden">
       {/* Background glow circles */}
-      <div
-        style={{
-          position: "absolute",
-          top: "10%",
-          left: "5%",
-          width: "220px",
-          height: "220px",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(147,51,234,0.35), transparent 70%)",
-          filter: "blur(90px)",
-          zIndex: -1,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "10%",
-          right: "5%",
-          width: "250px",
-          height: "250px",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(79,70,229,0.35), transparent 70%)",
-          filter: "blur(120px)",
-          zIndex: -1,
-        }}
-      />
+      <div className="absolute top-[10%] left-[5%] w-[220px] h-[220px] rounded-full bg-[radial-gradient(circle,rgba(147,51,234,0.35),transparent_70%)] blur-[90px] -z-10" />
+      <div className="absolute bottom-[10%] right-[5%] w-[250px] h-[250px] rounded-full bg-[radial-gradient(circle,rgba(79,70,229,0.35),transparent_70%)] blur-[120px] -z-10" />
 
-      {/* Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "24px",
-          justifyContent: "center",
-          alignItems: "center",
-          maxWidth: "1100px",
-          margin: "0 auto",
-        }}
-      >
+      {/* Cards Grid */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 justify-center items-center max-w-[1100px] mx-auto">
         {products.map((product, index) => (
           <motion.div
             key={product.id}
-            style={{
-              position: "relative",
-              width: "100%",
-              minHeight: "200px",
-              borderRadius: "18px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-              padding: "20px",
-              cursor: "pointer",
-              background:
-                "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 25%, #cfd9df 50%, #e0c3fc 75%, #fbc2eb 100%)",
-              transition: "all 0.3s ease-in-out",
-            }}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.15 }}
@@ -94,78 +37,32 @@ export default function PriceProducts({ products, onSelectPrice }: PriceProducts
               boxShadow: "0 0 30px rgba(147, 51, 234, 0.5)",
             }}
             onClick={() => onSelectPrice(product.price)}
+            className="relative w-full min-h-[200px] rounded-2xl shadow-lg flex flex-col justify-center items-center text-center p-5 cursor-pointer transition-all duration-300 bg-[linear-gradient(135deg,#e0c3fc_0%,#8ec5fc_25%,#cfd9df_50%,#e0c3fc_75%,#fbc2eb_100%)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
           >
             {index === 1 && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-14px",
-                  background: "linear-gradient(90deg,#9333ea,#4f46e5)",
-                  color: "white",
-                  padding: "4px 12px",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                }}
-              >
+              <div className="absolute -top-3 bg-gradient from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-xl text-[12px] font-semibold uppercase">
                 Popular
               </div>
             )}
 
-            <p
-              style={{
-                fontSize: "clamp(28px, 4vw, 38px)",
-                fontWeight: 800,
-                color: "#6d28d9",
-                margin: 0,
-              }}
-            >
+            <p className="text-[clamp(28px,4vw,38px)] font-extrabold text-purple-700 m-0">
               {product.currency || "₹"}
               {product.price}
             </p>
 
             {product.subtitle && (
-              <p
-                style={{
-                  fontSize: "clamp(13px, 2vw, 15px)",
-                  fontWeight: 600,
-                  color: "#7c3aed",
-                  marginTop: "6px",
-                }}
-              >
+              <p className="text-[clamp(13px,2vw,15px)] font-semibold text-purple-600 mt-1.5">
                 {product.subtitle}
               </p>
             )}
 
             {product.note && (
-              <p
-                style={{
-                  fontSize: "clamp(12px, 1.8vw, 14px)",
-                  color: "#9333ea",
-                  marginTop: "6px",
-                }}
-              >
+              <p className="text-[clamp(12px,1.8vw,14px)] text-purple-500 mt-1.5">
                 {product.note}
               </p>
             )}
 
-            <button
-              style={{
-                marginTop: "14px",
-                padding: "10px 20px",
-                width: "100%",
-                maxWidth: "160px",
-                borderRadius: "10px",
-                background: "linear-gradient(90deg,#9333ea,#4f46e5)",
-                color: "white",
-                fontWeight: 600,
-                fontSize: "clamp(13px, 2vw, 15px)",
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
-            >
+            <button className="mt-3 px-5 py-2.5 w-full max-w-160px rounded-lg bg-gradient from-purple-600 to-indigo-600 text-white font-semibold text-[clamp(13px,2vw,15px)] transition-all duration-300 hover:opacity-90">
               Get Started
             </button>
           </motion.div>

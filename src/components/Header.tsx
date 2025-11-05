@@ -3,7 +3,7 @@ import { Search, ShoppingBag, Store, LogIn, User } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { useCart } from "../contexts/CartContext";
 import { HomePageApi } from "./services/homepage";
-
+import logo from "../assets/aura_shree_logo.png";
 interface HeaderProps {
   currentPage: string;
   setCurrentPage: (
@@ -83,290 +83,142 @@ export default function Header({ setCurrentPage }: HeaderProps) {
     setCurrentPage("home");
   };
 
-  // ================= STYLES =================
-  const headerStyle: React.CSSProperties = {
-    backgroundColor: "rgba(75, 28, 63, 0.95)",
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
-    borderBottom: "1px solid rgba(255, 211, 105, 0.2)",
-  };
-
-  const containerStyle: React.CSSProperties = {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "12px 16px",
-  };
-
-  const logoStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-    gap: "8px",
-  };
-
-  const logoTextStyle: React.CSSProperties = {
-    fontSize: "24px",
-    fontWeight: "bold",
-    color: "#FFD369",
-  };
-
-  const searchContainerStyle: React.CSSProperties = {
-    flex: 1,
-    maxWidth: "650px",
-    margin: "0 20px",
-    position: "relative",
-    display: isMobile ? "none" : "block",
-  };
-
-  const searchInputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "14px 48px 14px 20px",
-    fontSize: "16px",
-    backgroundColor: "rgba(44, 30, 74, 0.8)",
-    border: "1px solid rgba(255, 211, 105, 0.4)",
-    color: "#fff",
-    borderRadius: "15px",
-    outline: "none",
-    transition: "0.3s",
-  };
-
-  const mobileSearchContainer: React.CSSProperties = {
-    display: isMobile ? "block" : "none",
-    padding: "10px 16px",
-    backgroundColor: "rgba(75, 28, 63, 0.95)",
-  };
-
-  const mobileSearchInputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "12px 48px 12px 20px",
-    fontSize: "16px",
-    backgroundColor: "rgba(33, 21, 57, 0.95)",
-    border: "1px solid rgba(255, 211, 105, 0.3)",
-    color: "#FFD369",
-    borderRadius: "15px",
-    outline: "none",
-    boxShadow: "0 0 10px rgba(255, 211, 105, 0.05) inset",
-    transition: "all 0.2s ease",
-  };
-
-  const mobileSearchIconStyle: React.CSSProperties = {
-    position: "absolute",
-    right: "20px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    color: "#FFD369",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    opacity: 0.8,
-  };
-
-  const rightSectionStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px",
-    position: "relative",
-  };
-
-  const actionButtonStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    background: "transparent",
-    border: "none",
-    color: "#FFD369",
-    fontSize: "16px",
-    cursor: "pointer",
-    padding: "8px",
-  };
-
-  const dropdownStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "50px",
-  right: 0,
-  background: "rgba(33, 21, 57, 0.98)",
-  border: "1px solid rgba(255, 211, 105, 0.3)",
-  borderRadius: "12px",
-  overflow: "hidden",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-  display: showDropdown ? "block" : "none",
-  minWidth: "180px",
-  zIndex: 2000,   // 👈 this line is key
-};
-
-
-  const dropdownItemStyle: React.CSSProperties = {
-    padding: "12px 16px",
-    color: "#FFD369",
-    cursor: "pointer",
-    fontSize: "15px",
-    background: "transparent",
-    border: "none",
-    textAlign: "left",
-    width: "100%",
-  };
-
-  const dropdownItemHover = (e: React.MouseEvent<HTMLButtonElement>) => {
-    (e.target as HTMLElement).style.background = "rgba(255, 211, 105, 0.15)";
-  };
-  const dropdownItemLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    (e.target as HTMLElement).style.background = "transparent";
-  };
-
-  // ================== RENDER ==================
   return (
-    <>
-      <header style={headerStyle}>
-        <div style={containerStyle}>
-          {/* Logo */}
-          <div style={logoStyle} onClick={() => setCurrentPage("home")}>
-            <img
-              src="/श्री  Aura.png"
-              alt="Logo"
-              width={42}
-              height={42}
-              style={{ borderRadius: "50%" }}
-            />
-            <span style={logoTextStyle}>ShreeAura</span>
-          </div>
-
-          {/* Search */}
-          <form style={searchContainerStyle} onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Search for products"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={searchInputStyle}
-            />
-            <div
-              style={{
-                position: "absolute",
-                right: "16px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#FFD369",
-                cursor: "pointer",
-              }}
-              onClick={handleSearch as any}
-            >
-              <Search size={22} />
-            </div>
-          </form>
-
-          {/* Right section */}
-          <div style={rightSectionStyle}>
-            <button
-              style={actionButtonStyle}
-              onClick={() => setCurrentPage("seller")}
-            >
-              <Store size={20} />
-              {!isMobile && <a href="https://seller.shreeaura.in"><span>Become a Seller</span></a>}
-            </button>
-
-            {!user ? (
-              <button
-                style={actionButtonStyle}
-                onClick={() => setCurrentPage("login")}
-              >
-                <LogIn size={20} />
-                {!isMobile && <span>Login</span>}
-              </button>
-            ) : (
-              <div style={{ position: "relative" }} ref={dropdownRef}>
-                <button
-                  style={actionButtonStyle}
-                  onClick={() => setShowDropdown((prev) => !prev)}
-                >
-                  <User size={20} />
-                  {!isMobile && <span>{user.name}</span>}
-                </button>
-                <div style={dropdownStyle}>
-                  <button
-                    style={dropdownItemStyle}
-                    onMouseEnter={dropdownItemHover}
-                    onMouseLeave={dropdownItemLeave}
-                    onClick={() => setCurrentPage("profile")}
-                  >
-                    Profile
-                  </button>
-                  <button
-                    style={dropdownItemStyle}
-                    onMouseEnter={dropdownItemHover}
-                    onMouseLeave={dropdownItemLeave}
-                    onClick={() => setCurrentPage("orders")}
-                  >
-                    My Orders
-                  </button>
-                  <button
-                    style={dropdownItemStyle}
-                    onMouseEnter={dropdownItemHover}
-                    onMouseLeave={dropdownItemLeave}
-                    onClick={logout}
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <button
-              style={{ ...actionButtonStyle, position: "relative" }}
-              onClick={() => setCurrentPage("cart")}
-            >
-              <ShoppingBag size={20} />
-              {!isMobile && <span>Cart</span>}
-              {getCartCount() > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "0px",
-                    right: "-5px",
-                    backgroundColor: "#A30B37",
-                    color: "white",
-                    fontSize: "12px",
-                    borderRadius: "50%",
-                    width: "20px",
-                    height: "20px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {getCartCount()}
-                </span>
-              )}
-            </button>
-          </div>
+    <header className="bg-[rgba(75,28,63,0.95)] sticky top-0 z-50 backdrop-blur-md shadow-md border-b border-[rgba(255,211,105,0.2)]">
+      {/* Desktop Header */}
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
+        {/* Logo */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => setCurrentPage("home")}
+        >
+          <img
+            src={logo}
+            alt="Logo"
+            width={42}
+            height={42}
+            className="rounded-full"
+          />
+          <span className="text-2xl font-bold text-[#FFD369]">ShreeAura</span>
         </div>
 
-        {/* Mobile search bar */}
-        {isMobile && (
+        {/* Search Bar (Desktop only) */}
+        {!isMobile && (
           <form
-            style={{ ...mobileSearchContainer, position: "relative" }}
             onSubmit={handleSearch}
+            className="flex-1 max-w-[650px] mx-5 relative hidden md:block"
           >
             <input
               type="text"
               placeholder="Search for products"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={mobileSearchInputStyle}
+              className="w-full py-3 pl-5 pr-12 text-white bg-[rgba(44,30,74,0.8)] border border-[rgba(255,211,105,0.4)] rounded-xl outline-none transition duration-300 focus:border-[#FFD369]"
             />
-            <div style={mobileSearchIconStyle} onClick={handleSearch as any}>
-              <Search size={20} />
+            <div
+              onClick={handleSearch as any}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer"
+            >
+              <Search size={22} />
             </div>
           </form>
         )}
-      </header>
-    </>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-5 relative">
+          {/* Seller */}
+          <button
+            onClick={() => setCurrentPage("seller")}
+            className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+          >
+            <Store size={20} />
+            {!isMobile && (
+              <a href="https://seller.shreeaura.in" className="text-sm">
+                Become a Seller
+              </a>
+            )}
+          </button>
+
+          {/* Login or User */}
+          {!user ? (
+            <button
+              onClick={() => setCurrentPage("login")}
+              className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+            >
+              <LogIn size={20} />
+              {!isMobile && <span>Login</span>}
+            </button>
+          ) : (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown((prev) => !prev)}
+                className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+              >
+                <User size={20} />
+                {!isMobile && <span>{user.name}</span>}
+              </button>
+              {showDropdown && (
+                <div className="absolute top-12 right-0 bg-[rgba(33,21,57,0.98)] border border-[rgba(255,211,105,0.3)] rounded-lg shadow-xl min-w-[180px] z-2000">
+                  <button
+                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
+                    onClick={() => setCurrentPage("profile")}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
+                    onClick={() => setCurrentPage("orders")}
+                  >
+                    My Orders
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Cart */}
+          <button
+            onClick={() => setCurrentPage("cart")}
+            className="relative flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+          >
+            <ShoppingBag size={20} />
+            {!isMobile && <span>Cart</span>}
+            {getCartCount() > 0 && (
+              <span className="absolute -top-1 -right-2 bg-[#A30B37] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {getCartCount()}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Search */}
+      {isMobile && (
+        <form
+          onSubmit={handleSearch}
+          className="relative block md:hidden px-4 py-2 bg-[rgba(75,28,63,0.95)]"
+        >
+          <input
+            type="text"
+            placeholder="Search for products"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full py-3 pl-5 pr-12 text-[#FFD369] bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-xl outline-none shadow-inner shadow-[rgba(255,211,105,0.05)]"
+          />
+          <div
+            onClick={handleSearch as any}
+            className="absolute right-6 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer"
+          >
+            <Search size={20} />
+          </div>
+        </form>
+      )}
+    </header>
   );
 }
