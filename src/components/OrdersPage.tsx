@@ -8,7 +8,6 @@ import {
   X,
   Eye,
   Download,
-  
   ChevronDown,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -21,7 +20,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { getUserIdFromToken } from "./services/auth";
@@ -69,6 +67,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("all");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -78,44 +77,57 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
         const data: OrderResponse[] = await fetchOrders(userId);
 
         const mappedOrders: Order[] = data.map((res, idx) => {
-          const items: OrderItem[] = res.products
-            ? Object.entries(res.products).map(([name, quantity]) => ({
-                name,
-                price:
-                  (res.totalPrice / Object.keys(res.products).length) || 0,
-                quantity: quantity as number,
-                image: "/placeholder.png",
-              }))
-            : [];
+  // 🧩 Extract image URL (if available)
+  const imageUrl =
+    (res.products && (res.products as any).imageUrl) ||
+    "/placeholder.png";
 
-          const statusMap: Record<number, string> = {
-            0: "pending",
-            1: "processing",
-            2: "shipped",
-            3: "delivered",
-            4: "cancelled",
-          };
+  // 🧾 Build the items array (skip imageUrl key)
+  const productEntries = Object.entries(res.products || {}).filter(
+    ([key]) => key !== "imageUrl"
+  );
 
-          return {
-            id: `ORD-${idx + 1}`,
-            orderDate: res.orderTime || new Date().toISOString(),
-            status: statusMap[res.status] || "pending",
-            items,
-            subtotal: res.totalPrice || 0,
-            shipping: 0,
-            tax: 0,
-            total: res.totalPrice || 0,
-            estimatedDelivery: undefined,
-            shippingAddress: {
-              name: "N/A",
-              street: res.address || "",
-              city: "",
-              state: "",
-              zipCode: "",
-              country: "",
-            },
-          };
-        });
+  const items: OrderItem[] = productEntries.map(([name, quantity]) => ({
+    name,
+    price:
+      productEntries.length > 0
+        ? res.totalPrice / productEntries.length
+        : res.totalPrice,
+    quantity: quantity as number,
+    imageUrl,
+  }));
+
+  // 🟢 Map numeric status to readable string
+  const statusMap: Record<number, string> = {
+    0: "pending",
+    1: "processing",
+    2: "shipped",
+    3: "delivered",
+    4: "cancelled",
+  };
+
+  // 🚀 Return formatted order
+  return {
+    id: `ORD-${idx + 1}`,
+    orderDate: res.orderTime || new Date().toISOString(),
+    status: statusMap[res.status] || "pending",
+    items,
+    subtotal: res.totalPrice || 0,
+    shipping: 0,
+    tax: 0,
+    total: res.totalPrice || 0,
+    estimatedDelivery: undefined,
+    shippingAddress: {
+      name: "N/A",
+      street: res.address || "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+    },
+  };
+});
+
 
         setOrders(mappedOrders);
       } catch (err) {
@@ -186,11 +198,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
   };
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <motion.div
-      variants={itemVariants}
-      whileHover={{ scale: 1.02 }}
-      className="group"
-    >
+    <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
       <Card className="bg-[#2C1E4A] border-[#FFD369]/20 hover:border-[#FFD369] transition-all duration-300">
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
@@ -214,8 +222,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
             <div className="flex items-center justify-between">
               <span className="text-white/70">Items:</span>
               <span className="text-white">
-                {order.items.length} product
-                {order.items.length !== 1 ? "s" : ""}
+                {order.items.length} product{order.items.length !== 1 ? "s" : ""}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -227,55 +234,17 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
           </div>
 
           <div className="flex space-x-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-[#FFD369] text-[#FFD369]"
-                  onClick={() => setSelectedOrder(order)}
-                >
-                  <Eye className="w-4 h-4 mr-2" /> View Details
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#2C1E4A] border-[#FFD369]/20 max-w-4xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-[#FFD369]">
-                    Order Details - #{order.id}
-                  </DialogTitle>
-                  <DialogDescription className="text-white/70">
-                    Complete information about your order
-                  </DialogDescription>
-                </DialogHeader>
-                {selectedOrder && (
-                  <div className="space-y-4">
-                    {selectedOrder.items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg"
-                      >
-                        <ImageWithFallback
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover rounded-md"
-                        />
-                        <div className="flex-1">
-                          <h5 className="text-white font-medium">
-                            {item.name}
-                          </h5>
-                          <span className="text-[#FFD369]">
-                            ₹{item.price.toFixed(2)}
-                          </span>
-                          <span className="text-white/70 ml-2">
-                            Qty: {item.quantity}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-[#FFD369] text-[#FFD369]"
+              onClick={() => {
+                setSelectedOrder(order);
+                setDialogOpen(true);
+              }}
+            >
+              <Eye className="w-4 h-4 mr-2" /> View Details
+            </Button>
 
             <Button
               size="sm"
@@ -300,9 +269,6 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
           className="max-w-4xl mx-auto"
         >
           <motion.div variants={itemVariants} className="mb-8">
-            <div className="flex items-center space-x-4 mb-4">
-              
-            </div>
             <h1 className="text-4xl font-bold text-[#FFD369] mb-2">
               My Orders
             </h1>
@@ -321,20 +287,19 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
               className="space-y-6"
             >
               <motion.div variants={itemVariants}>
-                {/* 💻 Large Screen Tabs */}
                 <TabsList className="hidden sm:grid w-full grid-cols-6 bg-[#2C1E4A]/70 border border-[#FFD369]/20 sticky top-0 z-10 backdrop-blur-md">
                   {tabs.map((tab) => (
                     <TabsTrigger
-  value="all"
-  className="text-white data-[state=active]:text-[#FFD369] data-[state=active]:font-semibold"
->
-  {tab.label}
-</TabsTrigger>
-
+                      key={tab.value}
+                      value={tab.value}
+                      className="text-white data-[state=active]:text-[#FFD369] data-[state=active]:font-semibold"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
                   ))}
                 </TabsList>
 
-                {/* 📱 Small Screen Dropdown */}
+                {/* 📱 Mobile Dropdown */}
                 <div className="sm:hidden relative z-10">
                   <Button
                     variant="outline"
@@ -376,7 +341,6 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
                 </div>
               </motion.div>
 
-              {/* 🧩 Tabs Content */}
               {tabs.map((tab) => (
                 <TabsContent
                   key={tab.value}
@@ -412,6 +376,48 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
           )}
         </motion.div>
       </div>
+
+      {/* ✅ Shared Dialog for Order Details */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="bg-[#2C1E4A] border-[#FFD369]/20 max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-[#FFD369]">
+              Order Details - #{selectedOrder?.id}
+            </DialogTitle>
+            <DialogDescription className="text-white/70">
+              Complete information about your order
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedOrder ? (
+            <div className="space-y-4">
+              {selectedOrder.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg"
+                >
+                  <ImageWithFallback
+                    src={item.imageUrl || item.image || "/placeholder.png"}
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                  <div className="flex-1">
+                    <h5 className="text-white font-medium">{item.name}</h5>
+                    <span className="text-[#FFD369]">
+                      ₹{item.price.toFixed(2)}
+                    </span>
+                    <span className="text-white/70 ml-2">
+                      Qty: {item.quantity}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-white/50 text-center py-6">No items found</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
