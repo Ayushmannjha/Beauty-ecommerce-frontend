@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Search, ShoppingBag, Store, LogIn, User } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { useCart } from "../contexts/CartContext";
 import { HomePageApi } from "./services/homepage";
 import logo from "../assets/aura_shree_logo.png";
+
 interface HeaderProps {
   currentPage: string;
   setCurrentPage: (
@@ -84,28 +86,46 @@ export default function Header({ setCurrentPage }: HeaderProps) {
   };
 
   return (
-    <header className="bg-[rgba(75,28,63,0.95)] sticky top-0 z-50 backdrop-blur-md shadow-md border-b border-[rgba(255,211,105,0.2)]">
+    <motion.header
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="bg-[rgba(75,28,63,0.95)] sticky top-0 z-50 backdrop-blur-md border-b border-[rgba(255,211,105,0.2)] shadow-[0_0_15px_rgba(255,211,105,0.05)]"
+    >
       {/* Desktop Header */}
       <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
-        <div
-          className="flex items-center gap-2 cursor-pointer"
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="flex items-center gap-2 cursor-pointer group"
           onClick={() => setCurrentPage("home")}
         >
-          <img
-            src={logo}
-            alt="Logo"
-            width={42}
-            height={42}
-            className="rounded-full"
-          />
-          <span className="text-2xl font-bold text-[#FFD369]">ShreeAura</span>
-        </div>
+          <div className="relative">
+            <motion.img
+              src={logo}
+              alt="Logo"
+              width={42}
+              height={42}
+              className="rounded-full"
+              whileHover={{ rotate: 8 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+              style={{ boxShadow: "0 0 15px 2px rgba(255,211,105,0.4)" }}
+            />
+          </div>
+          <span className="text-2xl font-bold text-[#FFD369] tracking-wide hover:text-white transition-all duration-300">
+            ShreeAura
+          </span>
+        </motion.div>
 
-        {/* Search Bar (Desktop only) */}
+        {/* Search Bar */}
         {!isMobile && (
-          <form
+          <motion.form
             onSubmit={handleSearch}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="flex-1 max-w-[650px] mx-5 relative hidden md:block"
           >
             <input
@@ -113,23 +133,25 @@ export default function Header({ setCurrentPage }: HeaderProps) {
               placeholder="Search for products"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-3 pl-5 pr-12 text-white bg-[rgba(44,30,74,0.8)] border border-[rgba(255,211,105,0.4)] rounded-xl outline-none transition duration-300 focus:border-[#FFD369]"
+              className="w-full py-3 pl-5 pr-12 text-white bg-[rgba(44,30,74,0.8)] border border-[rgba(255,211,105,0.4)] rounded-xl outline-none focus:ring-2 focus:ring-[#FFD369]/40 transition-all duration-300 placeholder-[#FFD369]/60"
             />
-            <div
+            <motion.div
+              whileTap={{ scale: 0.9 }}
               onClick={handleSearch as any}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer hover:text-white transition-colors"
             >
               <Search size={22} />
-            </div>
-          </form>
+            </motion.div>
+          </motion.form>
         )}
 
         {/* Right Section */}
         <div className="flex items-center gap-5 relative">
           {/* Seller */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
             onClick={() => setCurrentPage("seller")}
-            className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+            className="flex items-center gap-2 text-[#FFD369] hover:text-white transition-colors"
           >
             <Store size={20} />
             {!isMobile && (
@@ -137,64 +159,84 @@ export default function Header({ setCurrentPage }: HeaderProps) {
                 Become a Seller
               </a>
             )}
-          </button>
+          </motion.button>
 
-          {/* Login or User */}
+          {/* Login / User */}
           {!user ? (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
               onClick={() => setCurrentPage("login")}
-              className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+              className="flex items-center gap-2 text-[#FFD369] hover:text-white transition-colors"
             >
               <LogIn size={20} />
               {!isMobile && <span>Login</span>}
-            </button>
+            </motion.button>
           ) : (
             <div className="relative" ref={dropdownRef}>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={() => setShowDropdown((prev) => !prev)}
-                className="flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+                className="flex items-center gap-2 text-[#FFD369] hover:text-white transition-colors"
               >
                 <User size={20} />
                 {!isMobile && <span>{user.name}</span>}
-              </button>
-              {showDropdown && (
-                <div className="absolute top-12 right-0 bg-[rgba(33,21,57,0.98)] border border-[rgba(255,211,105,0.3)] rounded-lg shadow-xl min-w-[180px] z-2000">
-                  <button
-                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
-                    onClick={() => setCurrentPage("profile")}
+              </motion.button>
+
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-12 right-0 bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-lg shadow-lg min-w-[180px] backdrop-blur-md overflow-hidden"
                   >
-                    Profile
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
-                    onClick={() => setCurrentPage("orders")}
-                  >
-                    My Orders
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.15)]"
-                    onClick={logout}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+                    <button
+                      className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.1)] transition-colors"
+                      onClick={() => setCurrentPage("profile")}
+                    >
+                      Profile
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.1)] transition-colors"
+                      onClick={() => setCurrentPage("orders")}
+                    >
+                      My Orders
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.1)] transition-colors"
+                      onClick={logout}
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
           {/* Cart */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
             onClick={() => setCurrentPage("cart")}
-            className="relative flex items-center gap-2 text-[#FFD369] hover:text-yellow-300"
+            className="relative flex items-center gap-2 text-[#FFD369] hover:text-white transition-colors"
           >
             <ShoppingBag size={20} />
             {!isMobile && <span>Cart</span>}
-            {getCartCount() > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#A30B37] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                {getCartCount()}
-              </span>
-            )}
-          </button>
+            <AnimatePresence>
+              {getCartCount() > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  className="absolute -top-1 -right-2 bg-[#A30B37] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md"
+                >
+                  {getCartCount()}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
       </div>
 
@@ -209,16 +251,17 @@ export default function Header({ setCurrentPage }: HeaderProps) {
             placeholder="Search for products"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full py-3 pl-5 pr-12 text-[#FFD369] bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-xl outline-none shadow-inner shadow-[rgba(255,211,105,0.05)]"
+            className="w-full py-3 pl-5 pr-12 text-[#FFD369] bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-xl outline-none focus:ring-2 focus:ring-[#FFD369]/40 transition-all duration-300"
           />
-          <div
+          <motion.div
+            whileTap={{ scale: 0.9 }}
             onClick={handleSearch as any}
-            className="absolute right-6 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer"
+            className="absolute right-6 top-1/2 -translate-y-1/2 text-[#FFD369] cursor-pointer hover:text-white transition-colors"
           >
             <Search size={20} />
-          </div>
+          </motion.div>
         </form>
       )}
-    </header>
+    </motion.header>
   );
 }

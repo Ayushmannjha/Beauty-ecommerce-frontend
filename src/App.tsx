@@ -15,6 +15,7 @@ import SearchPage from "./components/SearchPage";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import CheckoutPage from "./components/CheckoutPage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -58,6 +59,9 @@ function AnimatedRoutes() {
       case "search":
         navigate(`/search?${params.toString()}`);
         break;
+      case "checkout":
+        navigate("/checkout");
+        break; 
       default:
         navigate("/");
         break;
@@ -122,6 +126,7 @@ function AnimatedRoutes() {
               path="/orders"
               element={<OrdersPage setCurrentPage={setCurrentPage} />}
             />
+            <Route path="/checkout" element={<CheckoutPage setCurrentPage={setCurrentPage}></CheckoutPage>}></Route>
             <Route
               path="/search"
               element={

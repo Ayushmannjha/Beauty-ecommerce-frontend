@@ -19,7 +19,7 @@ const AnimatedSection = ({ children, delay = 0 }: any) => {
   return (
     <motion.section
       ref={ref}
-      className="py-8 bg-[#1a0f1a]"
+      className="py-8 px-4 bg-[#1a0f1a]"
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.6, delay }}
@@ -51,27 +51,66 @@ export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
   };
 
   return (
-    <AnimatedSection delay={0.2}>
-      <div className="max-w-6xl mx-auto px-4 text-center">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-8 justify-items-center">
-          {predefinedNames.map((item) => (
+    <AnimatedSection delay={0.3}>
+      <div className="max-w-6xl mx-auto text-center">
+        {/* Section Header */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl md:text-4xl font-extrabold text-[#FFD369] mb-10 tracking-wide"
+        >
+          Shop by Name
+        </motion.h2>
+
+        {/* Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-center">
+          {predefinedNames.map((item, index) => (
             <motion.div
               key={item.name}
-              whileHover={{ scale: 1.08, y: -5 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: index * 0.15 }}
+              whileHover={{
+                scale: 1.08,
+                y: -6,
+                boxShadow: "0 0 25px rgba(255, 211, 105, 0.4)",
+              }}
               whileTap={{ scale: 0.96 }}
-              className="cursor-pointer rounded-2xl overflow-hidden w-full max-w-[200px] aspect-3/4 relative shadow-lg hover:shadow-xl transition-shadow duration-300"
               onClick={() => handleSearch(item.name)}
+              className="relative w-full max-w-[220px] aspect-[3/4] rounded-2xl overflow-hidden bg-[#2C1E4A]/70 border border-[#FFD369]/30 shadow-md hover:shadow-lg cursor-pointer group transition-all duration-300"
             >
+              {/* Image */}
               <motion.img
                 src={item.image}
                 alt={item.name}
-                className="w-full h-full object-cover transition-transform duration-400"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute inset-0 flex items-end justify-center p-4">
-                <p className="text-[#FFD369] font-bold text-sm uppercase tracking-wide">
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80"></div>
+
+              {/* Text Overlay */}
+              <div className="absolute bottom-0 w-full text-center pb-4">
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-[#FFD369] font-bold text-lg tracking-wide uppercase drop-shadow-lg"
+                >
                   {item.name}
-                </p>
+                </motion.p>
               </div>
+
+              {/* Hover Glow Ring */}
+              <motion.div
+                className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#FFD369]/50 transition-all duration-300"
+                whileHover={{
+                  boxShadow:
+                    "inset 0 0 15px rgba(255,211,105,0.3), 0 0 20px rgba(255,211,105,0.3)",
+                }}
+              />
             </motion.div>
           ))}
         </div>

@@ -5,9 +5,10 @@ import ProductCard, { type Product } from "./ProductCard";
 import { Slider } from "./ui/slider";
 import { Checkbox } from "./ui/checkbox";
 import { Separator } from "./ui/separator";
-import { Star } from "lucide-react";
+import { Star, SearchX, Filter } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { HomePageApi } from "../components/services/homepage";
+import { motion } from "motion/react";
 
 interface SearchPageProps {
   setCurrentPage: (page: string, options?: any) => void;
@@ -79,15 +80,39 @@ export default function SearchPage({
     inStock: false,
   });
 
-  // Keep filters in sync with URL params
-  useEffect(() => {
-    setFilters((prev) => ({
+  const [pendingFilters, setPendingFilters] = useState<FilterState>(filters);
+
+  const handlePendingChange = (key: keyof FilterState, value: any) =>
+    setPendingFilters((prev) => ({ ...prev, [key]: value }));
+
+  const togglePendingFilter = (
+    key: "categories" | "brands",
+    value: string
+  ) => {
+    setPendingFilters((prev) => ({
       ...prev,
-      categories: qCategory ? [qCategory] : prev.categories,
-      brands: qBrand ? [qBrand] : prev.brands,
-      priceRange: [0, qPrice ?? prev.priceRange[1]],
+      [key]: prev[key].includes(value)
+        ? prev[key].filter((v) => v !== value)
+        : [...prev[key], value],
     }));
-  }, [qCategory, qBrand, qPrice]);
+  };
+
+  const applyFilters = () => {
+    setFilters(pendingFilters);
+    setDropdownOpen(false);
+  };
+
+  const clearAllFilters = () => {
+    const cleared = {
+      categories: [],
+      brands: [],
+      priceRange: [0, 200] as [number, number],
+      rating: 0,
+      inStock: false,
+    };
+    setPendingFilters(cleared);
+    setFilters(cleared);
+  };
 
   const activeFiltersCount =
     filters.categories.length +
@@ -96,7 +121,6 @@ export default function SearchPage({
     (filters.inStock ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
 
-  // Fetch products based on initial URL filters
   useEffect(() => {
     const fetchProducts = async () => {
       if (!qName && !qCategory && !qBrand && qPrice === undefined) {
@@ -104,7 +128,6 @@ export default function SearchPage({
         setProducts([]);
         return;
       }
-
       setLoading(true);
       try {
         let results: Product[] = [];
@@ -137,7 +160,6 @@ export default function SearchPage({
     fetchProducts();
   }, [qName, qCategory, qBrand, qPrice]);
 
-  // Apply client-side filters
   useEffect(() => {
     let filtered = [...allProducts];
 
@@ -169,30 +191,6 @@ export default function SearchPage({
     setProducts(filtered);
   }, [filters, allProducts]);
 
-  const handleFilterChange = (key: keyof FilterState, value: any) =>
-    setFilters((prev) => ({ ...prev, [key]: value }));
-
-  const toggleFilter = (
-    key: "categories" | "brands",
-    value: string
-  ): void => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: prev[key].includes(value)
-        ? prev[key].filter((v) => v !== value)
-        : [...prev[key], value],
-    }));
-  };
-
-  const clearAllFilters = () =>
-    setFilters({
-      categories: [],
-      brands: [],
-      priceRange: [0, 200],
-      rating: 0,
-      inStock: false,
-    });
-
   const handleAddToCart = (product: Product) => {
     if (!product.stock) return;
 
@@ -206,119 +204,137 @@ export default function SearchPage({
   };
 
   const FilterSidebar = () => (
-    <div className="space-y-6 text-sm">
+    <div className="space-y-5 bg-[#1a0f1a]/70 p-5 rounded-2xl border border-[#FFD369]/20 shadow-lg shadow-[#FFD369]/10 backdrop-blur-md transition-all duration-300">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Filters</h3>
-        {activeFiltersCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-            Clear All ({activeFiltersCount})
+        <h3 className="text-lg font-semibold text-[#FFD369] flex items-center gap-2">
+          <Filter className="w-5 h-5 text-[#FFD369]" /> Filters
+        </h3>
+        <div className="flex items-center gap-2">
+          {activeFiltersCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="text-xs text-gray-300 hover:text-[#FFD369]"
+            >
+              Clear ({activeFiltersCount})
+            </Button>
+          )}
+          <Button
+            onClick={applyFilters}
+            className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] font-semibold px-3 py-1.5 text-sm rounded-lg transition-all"
+          >
+            Apply
           </Button>
-        )}
+        </div>
       </div>
 
-      {/* Categories */}
-      <div className="space-y-2">
-        <h4 className="font-medium">Categories</h4>
-        {categoryOptions.map((cat) => (
-          <label
-            key={cat}
-            htmlFor={`cat-${cat}`}
-            className="flex items-center space-x-2 cursor-pointer"
-          >
-            <Checkbox
-              id={`cat-${cat}`}
-              checked={filters.categories.includes(cat)}
-              onCheckedChange={() => toggleFilter("categories", cat)}
-            />
-            <span>{cat}</span>
-          </label>
-        ))}
+      <Separator className="bg-[#FFD369]/30" />
+
+      {/* Category Section */}
+      <div className="space-y-3">
+        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+          Categories
+        </h4>
+        <div className="grid grid-cols-1 gap-2">
+          {categoryOptions.map((cat) => (
+            <motion.label
+              key={cat}
+              whileHover={{ x: 4 }}
+              className="flex items-center space-x-2 text-gray-300 cursor-pointer"
+            >
+              <Checkbox
+                checked={pendingFilters.categories.includes(cat)}
+                onCheckedChange={() => togglePendingFilter("categories", cat)}
+              />
+              <span>{cat}</span>
+            </motion.label>
+          ))}
+        </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-[#FFD369]/30" />
 
-      {/* Brands */}
-      <div className="space-y-2">
-        <h4 className="font-medium">Brands</h4>
-        {brandOptions.map((brand) => (
-          <label
-            key={brand}
-            htmlFor={`brand-${brand}`}
-            className="flex items-center space-x-2 cursor-pointer"
-          >
-            <Checkbox
-              id={`brand-${brand}`}
-              checked={filters.brands.includes(brand)}
-              onCheckedChange={() => toggleFilter("brands", brand)}
-            />
-            <span>{brand}</span>
-          </label>
-        ))}
+      {/* Brand Section */}
+      <div className="space-y-3">
+        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+          Brands
+        </h4>
+        <div className="grid grid-cols-1 gap-2">
+          {brandOptions.map((brand) => (
+            <motion.label
+              key={brand}
+              whileHover={{ x: 4 }}
+              className="flex items-center space-x-2 text-gray-300 cursor-pointer"
+            >
+              <Checkbox
+                checked={pendingFilters.brands.includes(brand)}
+                onCheckedChange={() => togglePendingFilter("brands", brand)}
+              />
+              <span>{brand}</span>
+            </motion.label>
+          ))}
+        </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-[#FFD369]/30" />
 
-      {/* Price */}
-      <div className="space-y-2">
-        <h4 className="font-medium">Price Range</h4>
+      {/* Price Range */}
+      <div className="space-y-3">
+        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+          Price Range
+        </h4>
         <Slider
-          value={filters.priceRange}
+          value={pendingFilters.priceRange}
           onValueChange={(v) =>
-            handleFilterChange("priceRange", v as [number, number])
+            handlePendingChange("priceRange", v as [number, number])
           }
           min={0}
           max={200}
           step={5}
-          className="w-full"
         />
-        <div className="flex justify-between text-muted-foreground">
-          <span>₹{filters.priceRange[0]}</span>
-          <span>₹{filters.priceRange[1]}</span>
+        <div className="flex justify-between text-gray-400 text-sm">
+          <span>₹{pendingFilters.priceRange[0]}</span>
+          <span>₹{pendingFilters.priceRange[1]}</span>
         </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-[#FFD369]/30" />
 
       {/* Rating */}
-      <div className="space-y-2">
-        <h4 className="font-medium">Minimum Rating</h4>
+      <div className="space-y-3">
+        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+          Rating
+        </h4>
         {[4, 3, 2, 1].map((r) => (
-          <label
+          <motion.label
             key={r}
-            htmlFor={`rating-${r}`}
-            className="flex items-center space-x-2 cursor-pointer"
+            whileHover={{ x: 4 }}
+            className="flex items-center space-x-2 text-gray-300 cursor-pointer"
           >
             <Checkbox
-              id={`rating-${r}`}
-              checked={filters.rating === r}
+              checked={pendingFilters.rating === r}
               onCheckedChange={() =>
-                handleFilterChange("rating", filters.rating === r ? 0 : r)
+                handlePendingChange("rating", pendingFilters.rating === r ? 0 : r)
               }
             />
             <span className="flex items-center">
               {Array.from({ length: r }).map((_, i) => (
-                <Star
-                  key={i}
-                  className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                />
+                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               ))}
-              <span className="ml-1">& Up</span>
+              <span className="ml-1 text-sm">& Up</span>
             </span>
-          </label>
+          </motion.label>
         ))}
       </div>
 
-      <Separator />
+      <Separator className="bg-[#FFD369]/30" />
 
       {/* In Stock */}
-      <label
-        htmlFor="in-stock"
-        className="flex items-center space-x-2 cursor-pointer"
-      >
+      <label className="flex items-center space-x-2 text-gray-300 cursor-pointer">
         <Checkbox
-          id="in-stock"
-          checked={filters.inStock}
-          onCheckedChange={(c) => handleFilterChange("inStock", c)}
+          checked={pendingFilters.inStock}
+          onCheckedChange={(c) => handlePendingChange("inStock", c)}
         />
         <span>In Stock Only</span>
       </label>
@@ -326,36 +342,49 @@ export default function SearchPage({
   );
 
   return (
-    <div className="min-h-screen bg-[#0f0a10] text-white">
-      <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-        {/* Mobile Filter */}
+    <div className="min-h-screen bg-gradient-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
+      <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8">
+        {/* Mobile Filter Toggle */}
         <div className="lg:hidden mb-4">
           <Button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full justify-between bg-[#4b1c4f] hover:bg-[#632a68]"
+            className="w-full bg-[#FFD369]/20 hover:bg-[#FFD369]/30 text-[#FFD369] font-semibold flex justify-center items-center gap-2"
           >
-            Filters {dropdownOpen ? "▲" : "▼"}
+            <Filter className="w-5 h-5" />
+            {dropdownOpen ? "Hide Filters" : "Show Filters"}
           </Button>
           {dropdownOpen && (
-            <div className="mt-2 p-4 border rounded-lg bg-[#1a0f1a] shadow-md">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 p-4 border rounded-2xl bg-[#1a0f1a]/90 shadow-lg"
+            >
               <FilterSidebar />
-            </div>
+            </motion.div>
           )}
         </div>
 
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-24">
+        {/* Desktop Filter Sidebar */}
+        <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-24 h-fit">
           <FilterSidebar />
         </aside>
 
-        {/* Products */}
+        {/* Product Grid */}
         <main className="flex-1">
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-lg">
-              Loading...
+            <div className="flex flex-col items-center justify-center py-20">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                className="w-12 h-12 border-4 border-[#FFD369] border-t-transparent rounded-full mb-6"
+              ></motion.div>
+              <p className="text-lg font-medium text-[#FFD369]">Loading...</p>
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 lg:gap-6 justify-items-center">
+            <motion.div
+              layout
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
+            >
               {products.map((product) => {
                 const inCart = cartItems.some(
                   (i) => i.productId === product.productId
@@ -368,24 +397,56 @@ export default function SearchPage({
                   : "Add to Cart";
 
                 return (
-                  <div key={product.productId} className="w-full">
-                    <div className="cursor-pointer">
-                      <ProductCard
-                        product={product}
-                        onAddToCart={() => {
-                          if (!isOutOfStock) handleAddToCart(product);
-                        }}
-                        buttonText={buttonText}
-                      />
-                    </div>
-                  </div>
+                  <motion.div
+                    key={product.productId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full"
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={() =>
+                        !isOutOfStock && handleAddToCart(product)
+                      }
+                      buttonText={buttonText}
+                    />
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           ) : (
-            <p className="text-center text-lg py-10 text-gray-400">
-              No products found.
-            </p>
+            <div className="flex flex-col items-center justify-center py-24">
+              <motion.div
+                initial={{ scale: 0, rotate: -15 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
+              >
+                <SearchX className="w-14 h-14 text-[#FFD369]" />
+              </motion.div>
+
+              <motion.h3
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[#FFD369] font-bold text-2xl mt-6"
+              >
+                No Products Found
+              </motion.h3>
+
+              <p className="text-gray-400 text-center mt-2 max-w-sm">
+                We couldn’t find any products matching your filters.  
+                Try adjusting your selections or come back later.
+              </p>
+
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="text-5xl mt-8"
+              >
+                🛍️
+              </motion.div>
+            </div>
           )}
         </main>
       </div>
