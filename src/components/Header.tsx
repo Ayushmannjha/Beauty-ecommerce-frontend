@@ -185,12 +185,31 @@ export default function Header({ setCurrentPage }: HeaderProps) {
               <AnimatePresence>
                 {showDropdown && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-12 right-0 bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-lg shadow-lg min-w-[180px] backdrop-blur-md overflow-hidden"
-                  >
+  initial={{ opacity: 0, y: -10 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -10 }}
+  transition={{ duration: 0.2 }}
+ className="
+  absolute 
+  top-12 
+  left-1/2 
+  -translate-x-1/2 
+  md:left-auto 
+  md:right-0 
+  md:translate-x-0 
+  bg-[rgba(33,21,57,0.95)] 
+  border border-[rgba(255,211,105,0.3)] 
+  rounded-lg 
+  shadow-lg 
+  w-[160px] 
+  md:w-[180px]
+  backdrop-blur-md 
+  overflow-hidden 
+  z-50
+"
+
+>
+
                     <button
                       className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.1)] transition-colors"
                       onClick={() => setCurrentPage("profile")}
