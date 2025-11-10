@@ -18,5 +18,11 @@ export const HomePageApi = {
   getTopRatedProducts: async () => axios.get(`${API_BASE_URL}/top-rated`),
 
   // ✅ NEW: fetch all categories (make sure backend supports this)
-  getCategories: async () => axios.get(`${API_BASE_URL}/categories`),
+  
+
+  getCategories: async () => axios.get(`${API_BASE_URL}/get-categories`),
+  getShopByCategory: async () => axios.get(`${API_BASE_URL}/get-shop-by-category`),
+  getShopByName: async () => axios.get(`${API_BASE_URL}/shop-by-name`),
+
+  getAllBlogs: async () => axios.get(`${API_BASE_URL}/get-all-blogs`),
 };

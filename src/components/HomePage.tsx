@@ -178,15 +178,12 @@ useEffect(() => {
 
       {/* Price-based Products */}
       <motion.div
-        className="p-4 bg-[#2C1E4A]/60 rounded-2xl shadow-inner mx-auto w-[90%] mt-10"
+        className="p-4 bg-[#2C1E4A]/60 rounded-2xl shadow-inner mx-auto w-[90%] mt-5"
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-center text-3xl font-bold text-[#FFD369] mb-6">
-          Shop by Price
-        </h2>
         <PriceProducts products={pricePlans} onSelectPrice={handlePriceClick} />
         {selectedPrice && (
           <SearchPage
@@ -203,7 +200,7 @@ useEffect(() => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="mt-16"
+        className="mt-7"
       >
         <ShopByName
           setCurrentPage={

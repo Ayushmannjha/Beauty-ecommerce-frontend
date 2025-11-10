@@ -6,6 +6,8 @@ import { Separator } from "../components/ui/separator";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { useCart } from "../contexts/CartContext";
 import { useEffect } from "react";
+import { toast } from "sonner"; // ✅ using toast for login warning
+import { useLocation } from "react-router-dom";
 
 interface CartPageProps {
   setCurrentPage: (page: string) => void;
@@ -16,9 +18,35 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const subtotal = getCartTotal();
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
-useEffect(() => {
+  const location = useLocation();
+
+  // ✅ scroll to top on page mount
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
+
+  const handleProceedToCheckout = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.warning(
+        <div className="flex flex-col items-start gap-2">
+          <p className="text-sm">⚠️ Please login first to proceed to checkout.</p>
+          <Button
+            onClick={() => setCurrentPage("login")}
+            className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] py-1 px-3 text-sm"
+          >
+            Go to Login
+          </Button>
+        </div>,
+        { duration: 4000 }
+      );
+      return;
+    }
+
+    setCurrentPage("checkout");
+  };
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#1a0f1a] flex items-center justify-center">
@@ -128,8 +156,9 @@ useEffect(() => {
                   </div>
                 </div>
 
+                {/* ✅ Checkout button now checks login */}
                 <Button
-                  onClick={() => setCurrentPage("checkout")}
+                  onClick={handleProceedToCheckout}
                   className="w-full bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] py-3"
                 >
                   Proceed to Checkout

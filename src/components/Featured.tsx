@@ -1,20 +1,15 @@
 import { motion, useInView } from "motion/react";
-import { useRef } from "react";
-
-import rings from "../assets/rings.jpeg";
-import skincare from "../assets/skinCare.jpeg";
-import bangles from "../assets/bangles.jpeg";
-import kitchen from "../assets/Kitchenessentials.jpeg";
-import home from "../assets/homedecor.jpeg";
-import electronics from "../assets/electronics.png";
-import earing from "../assets/Earing.jpeg";
-import birthday from "../assets/birthday.jpeg";
-import hair from "../assets/Hair_accesories.jpg";
-import stationary from "../assets/Stationary.jpeg";
-import makeup from "../assets/Makeupessentials.jpeg";
+import { useEffect, useRef, useState } from "react";
+import { HomePageApi } from "./services/homepage";
 
 interface FeaturedProductsProps {
   setCurrentPage: (page: string, options?: { category?: string }) => void;
+}
+
+interface Category {
+  id: string | number;
+  name: string;
+  image: string;
 }
 
 const AnimatedSection = ({ children, delay = 0 }: any) => {
@@ -39,7 +34,7 @@ const CategoryCard = ({
   onClick,
   index,
 }: {
-  category: { name: string; image: string };
+  category: Category;
   onClick: (name: string) => void;
   index: number;
 }) => (
@@ -78,22 +73,23 @@ const CategoryCard = ({
   </motion.div>
 );
 
-export default function ShopByCategory({
-  setCurrentPage,
-}: FeaturedProductsProps) {
-  const categories = [
-    { id: 1, name: "Earrings", image: earing },
-    { id: 2, name: "Skincare", image: skincare },
-    { id: 3, name: "Bangles", image: bangles },
-    { id: 4, name: "Makeup Essentials", image: makeup },
-    { id: 5, name: "Home Decor", image: home },
-    { id: 6, name: "Hair Accessories", image: hair },
-    { id: 7, name: "Birthday Party Items", image: birthday },
-    { id: 8, name: "Electronics", image: electronics },
-    { id: 9, name: "Kitchen Essentials", image: kitchen },
-    { id: 10, name: "Stationery", image: stationary },
-    { id: 11, name: "Rings", image: rings },
-  ];
+export default function ShopByCategory({ setCurrentPage }: FeaturedProductsProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await HomePageApi.getShopByCategory();
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Error fetching shop by category:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <AnimatedSection delay={0.2}>
@@ -110,22 +106,21 @@ export default function ShopByCategory({
       />
 
       <div className="max-w-[1300px] mx-auto relative z-10">
-        {/* Section Header */}
-        
-
         {/* Category Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 justify-items-center px-2">
-          {categories.map((category, index) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              onClick={(name: string) =>
-                setCurrentPage("search", { category: name })
-              }
-              index={index}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-center text-[#FFD369] py-10">Loading categories...</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 justify-items-center px-2">
+            {categories.map((category, index) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                onClick={(name: string) => setCurrentPage("search", { category: name })}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </AnimatedSection>
   );

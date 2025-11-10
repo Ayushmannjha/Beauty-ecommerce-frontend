@@ -44,26 +44,26 @@ useEffect(() => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { addToCart, items: cartItems } = useCart();
+// 🟢 Add this new state and effect at the top (after other useState hooks)
+const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
-  const categoryOptions = [
-    "Hair accessories",
-    "Make-up essentials",
-    "Rings",
-    "Hair care",
-    "Earrings",
-    "Perfumes",
-    "Hand-wash",
-    "Electronics",
-    "Sanitary pads",
-    "Hair removal",
-    "Skincare",
-    "Home decorative items",
-    "Kitchen essentials",
-    "Oral care",
-    "Basic needs",
-    "Personal care",
-    "Bangles",
-  ];
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await HomePageApi.getCategories();
+      if (Array.isArray(res.data)) {
+        setCategoryOptions(res.data.map((c: any) => c.name));
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setCategoryOptions([]);
+    }
+  };
+
+  fetchCategories();
+}, []);
+
+  
 
   const brandOptions = [
     "LuxeBeauty",
@@ -425,36 +425,67 @@ useEffect(() => {
           ) : (
             !loading && (
               <div className="flex flex-col items-center justify-center py-24">
-                <motion.div
-                  initial={{ scale: 0, rotate: -15 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
-                >
-                  <SearchX className="w-14 h-14 text-[#FFD369]" />
-                </motion.div>
+  <motion.div
+    initial={{ scale: 0, rotate: -15 }}
+    animate={{ scale: 1, rotate: 0 }}
+    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+    className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
+  >
+    <SearchX className="w-14 h-14 text-[#FFD369]" />
+  </motion.div>
 
-                <motion.h3
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-[#FFD369] font-bold text-2xl mt-6"
-                >
-                  No Products Found
-                </motion.h3>
+  <motion.h3
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="text-[#FFD369] font-bold text-2xl mt-6"
+  >
+    No Products Found
+  </motion.h3>
 
-                <p className="text-gray-400 text-center mt-2 max-w-sm">
-                  We couldn’t find any products matching your filters.  
-                  Try adjusting your selections or come back later.
-                </p>
+  <p className="text-gray-400 text-center mt-2 max-w-sm">
+    We couldn’t find any products matching your filters.  
+    Try adjusting your selections or explore some of our popular picks below.
+  </p>
 
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="text-5xl mt-8"
-                >
-                  🛍️
-                </motion.div>
-              </div>
+  {/* 🌸 Recommendation Message */}
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.4 }}
+    className="text-[#FFD369]/80 text-center mt-6 text-sm"
+  >
+    Still not sure? Check out what others are loving 👇
+  </motion.p>
+
+  {/* 🛍️ Recommended Search Tags */}
+  <div className="flex flex-wrap justify-center gap-3 mt-4">
+    {["Scrunchies", "Lipstick", "Perfume", "Clutcher", "Nosepin", "Bindi Set"].map(
+      (name, index) => (
+        <motion.button
+          key={index}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "rgba(255,211,105,0.2)",
+          }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setCurrentPage("search", { name })}
+          className="px-4 py-2 bg-[#2C1E4A]/50 border border-[#FFD369]/40 text-[#FFD369] rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all"
+        >
+          {name}
+        </motion.button>
+      )
+    )}
+  </div>
+
+  <motion.div
+    animate={{ y: [0, -10, 0] }}
+    transition={{ repeat: Infinity, duration: 2 }}
+    className="text-5xl mt-10"
+  >
+    🛍️
+  </motion.div>
+</div>
+
             )
           )}
         </main>

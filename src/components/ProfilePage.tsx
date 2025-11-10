@@ -81,24 +81,40 @@ useEffect(() => {
   };
 
   const handleSave = async () => {
-    if (!user?.id) return;
-    try {
-      const updated: User & { token?: string } = await updateUserProfile(
-        user.id,
-        editedUser
-      );
+  if (!user?.id) return;
 
-      if (updated.token) localStorage.setItem("token", updated.token);
-
-      setUser(updated);
-      setEditedUser(updated);
-      setIsEditing(false);
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update profile");
+  // ✅ Prepare payload with only changed fields
+  const payload: Partial<typeof editedUser> = {};
+  Object.keys(editedUser).forEach((key) => {
+    const k = key as keyof typeof editedUser;
+    if (editedUser[k] !== user[k]) {
+      payload[k] = editedUser[k];
     }
-  };
+  });
+
+  // 🚫 No changes detected
+  if (Object.keys(payload).length === 0) {
+    toast.info("No changes made");
+    setIsEditing(false);
+    return;
+  }
+
+  try {
+    // ✅ Send only changed fields in API payload
+    const updatedUser = await updateUserProfile(user.id, payload);
+
+    // ✅ Merge response with local state
+    const merged = { ...user, ...updatedUser };
+    setUser(merged);
+    setEditedUser(merged);
+
+    toast.success("Profile updated successfully!");
+    setIsEditing(false);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update profile");
+  }
+};
 
   const handleCancel = () => {
     setIsEditing(false);

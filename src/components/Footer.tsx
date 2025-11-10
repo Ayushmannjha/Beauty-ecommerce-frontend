@@ -8,8 +8,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+
 
 export default function Footer() {
   return (
@@ -81,51 +80,39 @@ export default function Footer() {
               Customer Care
             </h4>
             <ul className="space-y-2 text-sm">
-              {[
-                "Contact Us",
-                "Shipping Info",
-                "Returns & Exchanges",
-                "Size Guide",
-                "FAQ",
-              ].map((item, i) => (
-                <motion.li
-                  key={i}
-                  whileHover={{ x: 6 }}
-                  className="transition-all duration-300"
-                >
-                  <a
-                    href="#"
-                    className="hover:text-white text-[#FFD369]/80 transition-colors"
-                  >
-                    {item}
-                  </a>
-                </motion.li>
-              ))}
-            </ul>
+  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+    <a
+      href="/contact.html"
+      className="hover:text-white text-[#FFD369]/80 transition-colors"
+    >
+      Contact Us
+    </a>
+  </motion.li>
+
+  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+    <a
+      href="/shipping.html"
+      className="hover:text-white text-[#FFD369]/80 transition-colors"
+    >
+      Shipping Info
+    </a>
+  </motion.li>
+
+  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+    <a
+      href="/refund.html"
+      className="hover:text-white text-[#FFD369]/80 transition-colors"
+    >
+      Returns & Exchanges
+    </a>
+  </motion.li>
+
+ 
+</ul>
+
           </div>
 
-          {/* Newsletter */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-white text-lg relative after:content-[''] after:absolute after:left-0 after:bottom-[-6px] after:w-10 after:h-[2px] after:bg-[#FFD369]">
-              Stay Updated
-            </h4>
-            <p className="text-sm text-[#FFD369]/80">
-              Subscribe to receive special offers and beauty tips.
-            </p>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="flex space-x-2 mt-4"
-            >
-              <Input
-                type="email"
-                placeholder="Your email"
-                className="bg-[#592A4E] border border-[#FFD369]/30 text-white placeholder-[#FFD369]/60 focus:ring-2 focus:ring-[#FFD369]/40 transition-all"
-              />
-              <Button className="bg-[#FFD369] text-[#A30B37] hover:bg-[#FFD369]/90 transition-all duration-300">
-                Subscribe
-              </Button>
-            </motion.div>
-          </div>
+          
         </motion.div>
 
         {/* Contact Info */}
@@ -163,13 +150,13 @@ export default function Footer() {
           <div>© 2025 Shreeaura.in. All rights reserved.</div>
           <div className="flex space-x-5">
             <a
-              href="#"
+              href="/privacy.html"
               className="hover:text-white transition-colors duration-300"
             >
               Privacy Policy
             </a>
             <a
-              href="#"
+              href="/terms.html"
               className="hover:text-white transition-colors duration-300"
             >
               Terms of Service
