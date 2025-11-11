@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Facebook, Instagram, Twitter, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Facebook, Instagram, Twitter } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
-import { Separator } from './ui/separator';
+
 import { toast } from 'sonner';
 import { loginCustomer } from './services/auth';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -45,11 +45,7 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
     }
   };
 
-  const socialButtons = [
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-600 hover:bg-blue-700' },
-    { name: 'Google', icon: Mail, color: 'bg-red-600 hover:bg-red-700' },
-    { name: 'Apple', icon: Lock, color: 'bg-gray-800 hover:bg-gray-900' }
-  ];
+ 
 
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },

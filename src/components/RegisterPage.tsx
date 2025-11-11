@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, Send, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -24,7 +24,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [acceptNewsletter, setAcceptNewsletter] = useState(true);
+ 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
