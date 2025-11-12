@@ -77,7 +77,7 @@ useEffect(() => {
       try {
         const userId = getUserIdFromToken() || "";
         const data: OrderResponse[] = await fetchOrders(userId);
-
+        console.log(data)
         const mappedOrders: Order[] = data.map((res, idx) => {
   // 🧩 Extract image URL (if available)
   const imageUrl =
@@ -415,6 +415,7 @@ useEffect(() => {
                 </div>
               ))}
             </div>
+            
           ) : (
             <p className="text-white/50 text-center py-6">No items found</p>
           )}
