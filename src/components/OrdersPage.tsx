@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Package,
@@ -21,173 +21,88 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { getUserIdFromToken } from "./services/auth";
-import { fetchOrders } from "./services/costumer";
+import { fetchOrders, cancelOrder } from "./services/costumer";
 import type { OrderResponse } from "./services/costumer";
-
-export interface OrderItem {
-  name: string;
-  brand?: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  imageUrl?: string;
-}
-
-export interface ShippingAddress {
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-}
-
-export interface Order {
-  id: string;
-  orderDate: string;
-  status: string;
-  items: OrderItem[];
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  total: number;
-  estimatedDelivery?: string;
-  shippingAddress: ShippingAddress;
-}
 
 interface OrdersPageProps {
   setCurrentPage: (page: string) => void;
 }
 
 export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState("all");
   const [showDropdown, setShowDropdown] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [location.pathname]);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+
   useEffect(() => {
-    const loadOrders = async () => {
-      setLoading(true);
-      try {
-        const userId = getUserIdFromToken() || "";
-        const data: OrderResponse[] = await fetchOrders(userId);
-        console.log(data)
-        const mappedOrders: Order[] = data.map((res, idx) => {
-  // 🧩 Extract image URL (if available)
-  const imageUrl =
-    (res.products && (res.products as any).imageUrl) ||
-    "/placeholder.png";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
-  // 🧾 Build the items array (skip imageUrl key)
-  const productEntries = Object.entries(res.products || {}).filter(
-    ([key]) => key !== "imageUrl"
-  );
-
-  const items: OrderItem[] = productEntries.map(([name, quantity]) => ({
-    name,
-    price:
-      productEntries.length > 0
-        ? res.totalPrice / productEntries.length
-        : res.totalPrice,
-    quantity: quantity as number,
-    imageUrl,
-  }));
-
-  // 🟢 Map numeric status to readable string
-  const statusMap: Record<number, string> = {
-    0: "pending",
-    1: "processing",
-    2: "shipped",
-    3: "delivered",
-    4: "cancelled",
+  const loadOrders = async () => {
+    setLoading(true);
+    try {
+      const userId = getUserIdFromToken() || "";
+      const data: OrderResponse[] = await fetchOrders(userId);
+      console.log(data)
+      setOrders(data);
+      console.log(orders)
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 🚀 Return formatted order
-  return {
-    id: `ORD-${idx + 1}`,
-    orderDate: res.orderTime || new Date().toISOString(),
-    status: statusMap[res.status] || "pending",
-    items,
-    subtotal: res.totalPrice || 0,
-    shipping: 0,
-    tax: 0,
-    total: res.totalPrice || 0,
-    estimatedDelivery: undefined,
-    shippingAddress: {
-      name: "N/A",
-      street: res.address || "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "",
-    },
-  };
-});
-
-
-        setOrders(mappedOrders);
-      } catch (err) {
-        console.error("Failed to fetch orders:", err);
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     loadOrders();
   }, []);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="w-4 h-4" />;
-      case "processing":
-        return <Package className="w-4 h-4" />;
-      case "shipped":
-        return <Truck className="w-4 h-4" />;
-      case "delivered":
-        return <CheckCircle className="w-4 h-4" />;
-      case "cancelled":
-        return <X className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
+  const statusMap: Record<number, { label: string; color: string; icon: JSX.Element }> = {
+    0: { label: "Pending", color: "bg-yellow-500", icon: <Clock className="w-4 h-4" /> },
+    1: { label: "Processing", color: "bg-blue-500", icon: <Package className="w-4 h-4" /> },
+    2: { label: "Shipped", color: "bg-purple-500", icon: <Truck className="w-4 h-4" /> },
+    3: { label: "Delivered", color: "bg-green-500", icon: <CheckCircle className="w-4 h-4" /> },
+    4: { label: "Cancelled", color: "bg-red-500", icon: <X className="w-4 h-4" /> },
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500";
-      case "processing":
-        return "bg-blue-500";
-      case "shipped":
-        return "bg-purple-500";
-      case "delivered":
-        return "bg-green-500";
-      case "cancelled":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const filterOrdersByStatus = (status?: string) =>
-    !status ? orders : orders.filter((o) => o.status === status);
+  const filterOrdersByStatus = (status?: number) =>
+    status === undefined ? orders : orders.filter((o) => o.status === status);
 
   const tabs = [
     { value: "all", label: `All (${orders.length})` },
-    { value: "pending", label: `Pending (${filterOrdersByStatus("pending").length})` },
-    { value: "processing", label: `Processing (${filterOrdersByStatus("processing").length})` },
-    { value: "shipped", label: `Shipped (${filterOrdersByStatus("shipped").length})` },
-    { value: "delivered", label: `Delivered (${filterOrdersByStatus("delivered").length})` },
-    { value: "cancelled", label: `Cancelled (${filterOrdersByStatus("cancelled").length})` },
+    { value: "0", label: `Pending (${filterOrdersByStatus(0).length})` },
+    { value: "1", label: `Processing (${filterOrdersByStatus(1).length})` },
+    { value: "2", label: `Shipped (${filterOrdersByStatus(2).length})` },
+    { value: "3", label: `Delivered (${filterOrdersByStatus(3).length})` },
+    { value: "4", label: `Cancelled (${filterOrdersByStatus(4).length})` },
   ];
+
+  const handleCancelOrder = async (order: OrderResponse) => {
+    if (!cancelReason.trim()) {
+      alert("Please provide a reason for cancellation.");
+      return;
+    }
+    try {
+      
+
+      await cancelOrder(order.orderId);
+      alert("Order cancelled successfully!");
+      setCancelDialogOpen(false);
+      setCancelReason("");
+      await loadOrders();
+    } catch (err) {
+      console.error("Cancel failed:", err);
+      alert("Failed to cancel order.");
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -199,67 +114,98 @@ useEffect(() => {
     visible: { y: 0, opacity: 1, transition: { duration: 0.4 } },
   };
 
-  const OrderCard = ({ order }: { order: Order }) => (
-    <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
-      <Card className="bg-[#2C1E4A] border-[#FFD369]/20 hover:border-[#FFD369] transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className="font-semibold text-white mb-1">
-                Order #{order.id}
-              </h3>
-              <p className="text-sm text-white/70">
-                Placed on {new Date(order.orderDate).toLocaleDateString()}
-              </p>
-            </div>
-            <Badge
-              className={`${getStatusColor(order.status)} text-white flex items-center gap-1`}
-            >
-              {getStatusIcon(order.status)}
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-            </Badge>
-          </div>
+  const OrderCard = ({ order, index }: { order: OrderResponse; index: number }) => {
+    const status = statusMap[order.status] || statusMap[0];
+    
+      (order.products && (order.products as any).imageUrl) || "/placeholder.png";
+    const productEntries = Object.entries(order.products || {}).filter(
+      ([key]) => key !== "imageUrl"
+    );
 
-          <div className="space-y-3 mb-4">
-            <div className="flex items-center justify-between">
-              <span className="text-white/70">Items:</span>
-              <span className="text-white">
-                {order.items.length} product{order.items.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-white/70">Total:</span>
-              <span className="text-xl font-bold text-[#FFD369]">
-                ₹{order.total.toFixed(2)}
-              </span>
-            </div>
-          </div>
+    return (
+      <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
+        <Card className="bg-[#2C1E4A] border-[#FFD369]/20 hover:border-[#FFD369] transition-all duration-300">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+  <div>
+    <h3 className="font-semibold text-white mb-1">
+      Order #{index + 1}
+    </h3>
+    <p className="text-sm text-white/70">
+      Placed on {new Date(order.orderTime).toLocaleDateString()}
+    </p>
 
-          <div className="flex space-x-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-[#FFD369] text-[#FFD369]"
-              onClick={() => {
-                setSelectedOrder(order);
-                setDialogOpen(true);
-              }}
-            >
-              <Eye className="w-4 h-4 mr-2" /> View Details
-            </Button>
+    {/* 🟥 Show refund info if cancelled */}
+    {order.status === 4 && (
+      <p className="text-sm text-red-400 mt-1">
+        {order.phone
+          ? `In case of online transaction refund , contact +918544090329.`
+          : "Refund will be processed to your linked account."}
+      </p>
+    )}
+  </div>
 
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-[#FFD369]/50 text-[#FFD369]/70 hover:bg-[#FFD369]/10"
-            >
-              <Download className="w-4 h-4 mr-2" /> Invoice
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+  <Badge className={`${status.color} text-white flex items-center gap-1`}>
+    {status.icon}
+    {status.label}
+  </Badge>
+</div>
+
+
+            <div className="space-y-3 mb-4">
+              <div className="flex items-center justify-between">
+                <span className="text-white/70">Items:</span>
+                <span className="text-white">{productEntries.length}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/70">Total:</span>
+                <span className="text-xl font-bold text-[#FFD369]">
+                  ₹{order.totalPrice.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#FFD369] text-[#FFD369]"
+                onClick={() => {
+                  setSelectedOrder(order);
+                  setDialogOpen(true);
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2" /> View Details
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#FFD369]/50 text-[#FFD369]/70 hover:bg-[#FFD369]/10"
+              >
+                <Download className="w-4 h-4 mr-2" /> Invoice
+              </Button>
+
+              {/* 🟥 Cancel Button (only for Pending orders) */}
+              {order.status === 0 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setCancelDialogOpen(true);
+                  }}
+                >
+                  <X className="w-4 h-4 mr-2" /> Cancel Order
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#1a0f1a] pt-7 pb-12">
@@ -271,12 +217,8 @@ useEffect(() => {
           className="max-w-4xl mx-auto"
         >
           <motion.div variants={itemVariants} className="mb-8">
-            <h1 className="text-4xl font-bold text-[#FFD369] mb-2">
-              My Orders
-            </h1>
-            <p className="text-white/70">
-              Track and manage your order history easily.
-            </p>
+            <h1 className="text-4xl font-bold text-[#FFD369] mb-2">My Orders</h1>
+            <p className="text-white/70">Track and manage your order history easily.</p>
           </motion.div>
 
           {loading ? (
@@ -350,9 +292,9 @@ useEffect(() => {
                   className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-white"
                 >
                   {filterOrdersByStatus(
-                    tab.value === "all" ? undefined : tab.value
-                  ).map((order) => (
-                    <OrderCard key={order.id} order={order} />
+                    tab.value === "all" ? undefined : Number(tab.value)
+                  ).map((order, index) => (
+                    <OrderCard key={index} order={order} index={index} />
                   ))}
                 </TabsContent>
               ))}
@@ -379,12 +321,12 @@ useEffect(() => {
         </motion.div>
       </div>
 
-      {/* ✅ Shared Dialog for Order Details */}
+      {/* 🧾 Dialog: Order Details */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-[#2C1E4A] border-[#FFD369]/20 max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-[#FFD369]">
-              Order Details - #{selectedOrder?.id}
+              Order Details
             </DialogTitle>
             <DialogDescription className="text-white/70">
               Complete information about your order
@@ -393,32 +335,79 @@ useEffect(() => {
 
           {selectedOrder ? (
             <div className="space-y-4">
-              {selectedOrder.items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg"
-                >
-                  <ImageWithFallback
-                    src={item.imageUrl || item.image || "/placeholder.png"}
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                  <div className="flex-1">
-                    <h5 className="text-white font-medium">{item.name}</h5>
-                    <span className="text-[#FFD369]">
-                      ₹{item.price.toFixed(2)}
-                    </span>
-                    <span className="text-white/70 ml-2">
-                      Qty: {item.quantity}
-                    </span>
+              {/* 🧍 Address Section */}
+              <div className="p-4 bg-[#1a0f1a] rounded-lg text-white/80">
+                <h4 className="font-semibold text-[#FFD369] mb-2">
+                  Delivery Address
+                </h4>
+                <p>{selectedOrder.address}</p>
+                <p>📞 {selectedOrder.phone}</p>
+              </div>
+
+              {/* 🛍️ Products Section */}
+              {Object.entries(selectedOrder.products)
+                .filter(([key]) => key !== "imageUrl")
+                .map(([name, quantity], idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg"
+                  >
+                    <ImageWithFallback
+                      src={
+                        (selectedOrder.products as any).imageUrl ||
+                        "/placeholder.png"
+                      }
+                      alt={name}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                    <div className="flex-1">
+                      <h5 className="text-white font-medium">{name}</h5>
+                      <span className="text-[#FFD369]">
+                        Qty: {quantity as number}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
-            
           ) : (
             <p className="text-white/50 text-center py-6">No items found</p>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ❌ Cancel Order Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="bg-[#2C1E4A] border-[#FFD369]/20 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-[#FFD369]">Cancel Order</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Please provide a reason for cancelling your order.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Input
+              placeholder="Reason for cancellation..."
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="bg-[#1a0f1a] border-[#FFD369]/30 text-white"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                className="text-white border-[#FFD369]/30"
+                onClick={() => setCancelDialogOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => selectedOrder && handleCancelOrder(selectedOrder)}
+              >
+                Confirm Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

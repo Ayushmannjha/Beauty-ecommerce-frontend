@@ -37,13 +37,18 @@ export interface OrderRequest {
 
 // Matches backend OrderResponse
 export interface OrderResponse {
-  products: { [productName: string]: number }; // name → quantity
+  orderId:string;
+  products: {
+    imageUrl: string;
+    [productName: string]: number | string;
+  };
   totalPrice: number;
   address: string;
   phone: string;
   status: number;
   orderTime: string;
 }
+
 
 
 // ============================
@@ -191,4 +196,19 @@ export const checkRazorpayOrderStatus = async (
   }
 
   return await res.text(); // e.g., "Payment Successful ✅"
+};
+// ✅ Cancel order
+export const cancelOrder = async (orderId: string): Promise<string> => {
+  const res = await fetch(`${API_BASE}/user/cancel-order?orderId=${orderId}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Failed to cancel order:", text);
+    throw new Error(`Failed to cancel order. Status: ${res.status}`);
+  }
+
+  return await res.text(); // e.g. "Order canceled"
 };

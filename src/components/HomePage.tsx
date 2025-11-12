@@ -5,7 +5,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 import girlsProduct from "../assets/girlsproducts.png";
 import birthday from "../assets/birthday.jpeg";
-import electronics from "../assets/electronics.png";
+
 
 import FeaturedProducts from "./Featured";
 import PriceProducts from "./PriceProducts";
@@ -29,7 +29,6 @@ useEffect(() => {
   }, [location.pathname]);
   const heroSlides = [
     { id: 1, image: girlsProduct, title: "Explore the Latest Fashion", subtitle: "Trendy Styles Just for You", name:"Makeup essential" },
-    { id: 2, image: electronics, title: "Power Up with Electronics", subtitle: "Upgrade Your Everyday Life" ,name:"Electronics" },
     { id: 3, image: birthday, title: "Celebrate Every Moment", subtitle: "Find Perfect Gifts for Every Occasion", name:"Birthday" },
   ];
 
@@ -80,91 +79,94 @@ useEffect(() => {
       />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden w-full md:w-[87%] mx-auto min-h-[40vh] lg:min-h-[65vh] rounded-3xl shadow-[0_0_30px_rgba(255,211,105,0.2)] my-3">
-        <AnimatePresence mode="wait">
-          {heroSlides.map(
-            (slide, index) =>
-              index === currentSlide && (
-                <motion.div
-                  key={slide.id}
-                  className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden"
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <ImageWithFallback
-                    src={slide.image}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 rounded-3xl"></div>
+{/* Hero Section */}
+<section className="relative overflow-hidden w-full md:w-[87%] mx-auto min-h-[40vh] lg:min-h-[65vh] rounded-3xl shadow-[0_0_30px_rgba(255,211,105,0.2)] my-3">
+  <AnimatePresence mode="wait">
+    {heroSlides.map(
+      (slide, index) =>
+        index === currentSlide && (
+          <motion.div
+            key={slide.id}
+            className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.8 }}
+          >
+            <ImageWithFallback
+              src={slide.image}
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            />
+            {/* Overlay (no pointer events) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 rounded-3xl pointer-events-none"></div>
 
-                  {/* Hero Text */}
-                  <div className="relative z-10 flex flex-col justify-center items-start h-full px-8 md:px-16">
-                    <motion.h1
-                      className="text-4xl md:text-6xl font-extrabold text-[#FFD369] drop-shadow-xl mb-4"
-                      initial={{ x: -50, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.7, delay: 0.2 }}
-                    >
-                      {slide.title}
-                    </motion.h1>
-                    <motion.p
-                      className="text-lg md:text-2xl text-white/90 mb-6"
-                      initial={{ x: -50, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.7, delay: 0.4 }}
-                    >
-                      {slide.subtitle}
-                    </motion.p>
-                    <motion.button
-                      onClick={() => setCurrentPage("search",{category: slide.name})}
-                      className="bg-[#FFD369] text-[#1a0f1a] font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-[#FFD369]/50 hover:bg-[#ffcb47] transition-all"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Explore Now
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )
-          )}
-        </AnimatePresence>
+            {/* Hero Text */}
+            <div className="relative z-20 flex flex-col justify-center items-start h-full px-8 md:px-16">
+              <motion.h1
+                className="text-4xl md:text-6xl font-extrabold text-[#FFD369] drop-shadow-xl mb-4"
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+              >
+                {slide.title}
+              </motion.h1>
+              <motion.p
+                className="text-lg md:text-2xl text-white/90 mb-6"
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+              >
+                {slide.subtitle}
+              </motion.p>
+              <motion.button
+                onClick={() => setCurrentPage("search", { category: slide.name })}
+                className="bg-[#FFD369] text-[#1a0f1a] font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-[#FFD369]/50 hover:bg-[#ffcb47] transition-all"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Explore Now
+              </motion.button>
+            </div>
+          </motion.div>
+        )
+    )}
+  </AnimatePresence>
 
-        {/* Navigation Arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-5 -translate-y-1/2 bg-black/40 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#FFD369] hover:text-[#1a0f1a] transition-all duration-300"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-5 -translate-y-1/2 bg-black/40 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#FFD369] hover:text-[#1a0f1a] transition-all duration-300"
-        >
-          <ChevronRight size={24} />
-        </button>
+  {/* Navigation Arrows — FIXED for mobile */}
+  <button
+    onClick={prevSlide}
+    className="absolute top-1/2 left-5 -translate-y-1/2 bg-black/40 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#FFD369] hover:text-[#1a0f1a] transition-all duration-300 z-50 active:scale-95"
+  >
+    <ChevronLeft size={24} />
+  </button>
+  <button
+    onClick={nextSlide}
+    className="absolute top-1/2 right-5 -translate-y-1/2 bg-black/40 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#FFD369] hover:text-[#1a0f1a] transition-all duration-300 z-50 active:scale-95"
+  >
+    <ChevronRight size={24} />
+  </button>
 
-        {/* Dots */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-          {heroSlides.map((_, index) => (
-            <motion.div
-              key={index}
-              onClick={() => {
-                setCurrentSlide(index);
-                setIsAutoSliding(false);
-                setTimeout(() => setIsAutoSliding(true), 10000);
-              }}
-              className={`rounded-full cursor-pointer transition-all duration-300 ${
-                index === currentSlide
-                  ? "w-5 h-5 bg-[#FFD369] shadow-[0_0_15px_#FFD369]"
-                  : "w-3 h-3 bg-white/40"
-              }`}
-              whileHover={{ scale: 1.3 }}
-            ></motion.div>
-          ))}
-        </div>
-      </section>
+  {/* Dots */}
+  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-30">
+    {heroSlides.map((_, index) => (
+      <motion.div
+        key={index}
+        onClick={() => {
+          setCurrentSlide(index);
+          setIsAutoSliding(false);
+          setTimeout(() => setIsAutoSliding(true), 10000);
+        }}
+        className={`rounded-full cursor-pointer transition-all duration-300 ${
+          index === currentSlide
+            ? "w-5 h-5 bg-[#FFD369] shadow-[0_0_15px_#FFD369]"
+            : "w-3 h-3 bg-white/40"
+        }`}
+        whileHover={{ scale: 1.3 }}
+      ></motion.div>
+    ))}
+  </div>
+</section>
+
 
       {/* Featured Products */}
       <motion.div

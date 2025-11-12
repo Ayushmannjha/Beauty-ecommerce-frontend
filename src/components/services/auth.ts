@@ -108,3 +108,47 @@ export const getUserIdFromToken = (): string | null => {
 export const isLoggedIn = (): boolean => {
   return localStorage.getItem("token") !== null;
 };
+// ================= FORGOT PASSWORD =================
+
+// ✅ Step 1: Send Forgot Password OTP
+export const sendForgotPasswordOtp = async (email: string): Promise<string> => {
+  const response = await fetch(
+    `${API_BASE}/auth/forgot-password?email=${encodeURIComponent(email)}`,
+    {
+      method: "POST",
+    }
+  );
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || "Failed to send password reset OTP");
+  }
+
+  console.log("Forgot Password OTP Response:", text);
+  return text;
+};
+
+// ✅ Step 2: Change Password using OTP
+export const changePasswordWithOtp = async (
+  email: string,
+  otp: string,
+  newPassword: string
+): Promise<string> => {
+  const params = new URLSearchParams({ email, otp, newPassword });
+  const response = await fetch(
+    `${API_BASE}/auth/password-change?${params.toString()}`,
+    {
+      method: "POST",
+    }
+  );
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || "Failed to change password");
+  }
+
+  console.log("Change Password Response:", text);
+  return text;
+};

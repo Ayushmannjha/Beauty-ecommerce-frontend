@@ -30,7 +30,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-white tracking-wide">
-              LuxeBeauty
+              Shree Aura
             </h3>
             <p className="text-sm text-[#FFD369]/80 leading-relaxed">
               Your destination for premium beauty and cosmetics. Discover luxury
@@ -55,23 +55,22 @@ export default function Footer() {
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
-              {["About Us", "Beauty Guide", "Gift Cards", "Store Locator", "Careers"].map(
-                (link, i) => (
-                  <motion.li
-                    key={i}
-                    whileHover={{ x: 6 }}
-                    className="transition-all duration-300"
-                  >
-                    <a
-                      href="#"
-                      className="hover:text-white text-[#FFD369]/80 transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </motion.li>
-                )
-              )}
-            </ul>
+  {["combo", "rings", "Makeup+Essentials"].map((link, i) => (
+    <motion.li
+      key={i}
+      whileHover={{ x: 6 }}
+      className="transition-all duration-300"
+    >
+      <a
+        href={`/search?category=${encodeURIComponent(link)}`}
+        className="hover:text-white text-[#FFD369]/80 transition-colors"
+      >
+        {link}
+      </a>
+    </motion.li>
+  ))}
+</ul>
+
           </div>
 
           {/* Customer Care */}
