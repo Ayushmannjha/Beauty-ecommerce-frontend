@@ -12,6 +12,7 @@ export default function BlogPage() {
   const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch blogs
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
@@ -25,6 +26,31 @@ export default function BlogPage() {
     };
     fetchBlogs();
   }, []);
+
+  // 🧭 Hide the scroll indicator when scrolled to bottom
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const scrollContainer = document.querySelector(
+      ".scrollable-blog-content"
+    ) as HTMLElement | null;
+    const indicator = document.getElementById("scroll-indicator");
+
+    if (!scrollContainer || !indicator) return;
+
+    const handleScroll = () => {
+      const atBottom =
+        scrollContainer.scrollTop + scrollContainer.clientHeight >=
+        scrollContainer.scrollHeight - 10;
+
+      indicator.style.opacity = atBottom ? "0" : "1";
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
+  }, [selectedPost]);
 
   return (
     <div className="min-h-screen bg-[#12091E] text-white relative overflow-hidden">
@@ -109,27 +135,40 @@ export default function BlogPage() {
 
       {/* Dialog for Full Blog Content */}
       <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
-        <DialogContent className="max-w-2xl bg-[#1E1432] text-white border border-[#FFD369]/20 rounded-2xl p-6">
-          <DialogHeader className="flex justify-between items-center mb-4">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-[#1E1432] text-white border border-[#FFD369]/20 rounded-2xl p-0 flex flex-col">
+          {/* Header */}
+          <DialogHeader className="p-6 pb-3 border-b border-[#FFD369]/20">
             <DialogTitle className="text-2xl font-bold text-[#FFD369]">
               {selectedPost?.title}
             </DialogTitle>
           </DialogHeader>
 
-          {selectedPost && (
-            <>
-              <div className="rounded-lg overflow-hidden mb-5">
-                <img
-                  src={selectedPost.imageUrl}
-                  alt={selectedPost.title}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </div>
-              <p className="text-white/80 leading-relaxed whitespace-pre-line text-sm sm:text-base">
-                {selectedPost.description}
-              </p>
-            </>
-          )}
+          {/* Scrollable Content */}
+          <div className="relative flex-1 overflow-y-auto px-6 py-4 space-y-5 scrollable-blog-content">
+            {selectedPost && (
+              <>
+                <div className="rounded-lg overflow-hidden">
+                  <img
+                    src={selectedPost.imageUrl}
+                    alt={selectedPost.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+
+                <p className="text-white/80 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                  {selectedPost.description}
+                </p>
+              </>
+            )}
+
+            {/* 🔽 Scroll Down Indicator */}
+            <div
+              id="scroll-indicator"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[#FFD369]/70 transition-opacity duration-500 animate-bounce"
+            >
+              <ArrowRight className="w-6 h-6 rotate-90" strokeWidth={2.5} />
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
