@@ -16,7 +16,7 @@ interface NameCard {
 }
 
 const CACHE_KEY = "shop_by_name_cache";
-const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_DURATION_MS = 0.1 * 60 * 1000; // 0.1 min
 
 const AnimatedSection = ({ children, delay = 0 }: any) => {
   const ref = useRef(null);

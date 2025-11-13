@@ -13,7 +13,7 @@ interface Category {
 }
 
 const CACHE_KEY = "shop_by_category_cache";
-const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour cache
+const CACHE_DURATION_MS = 0.1 * 60 * 1000; // 0.1min cache
 
 const AnimatedSection = ({ children, delay = 0 }: any) => {
   const ref = useRef(null);
