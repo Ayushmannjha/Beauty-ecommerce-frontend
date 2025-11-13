@@ -17,7 +17,7 @@ export interface Product {
   reviews: number;
   badge?: string;
   stock?: number;
-  available?: boolean;
+  //available?: boolean;
   imageUrl?: string;
   category?: string;
   description?: string;
@@ -108,7 +108,7 @@ export default function ProductCard({
         </motion.div>
 
         {/* Out of Stock Overlay */}
-        {!product.available && (
+        {!product.stock && (
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-xl">
             <span className="text-white text-xs font-semibold uppercase tracking-wider">
               Out of Stock
