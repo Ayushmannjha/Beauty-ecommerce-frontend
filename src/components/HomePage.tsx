@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-
+import shreeaurahero from "../assets/shreeaurahero.jpeg";
 import girlsProduct from "../assets/girlsproducts.png";
-import birthday from "../assets/birthday.jpeg";
+
 
 
 import FeaturedProducts from "./Featured";
@@ -29,7 +29,7 @@ useEffect(() => {
   }, [location.pathname]);
   const heroSlides = [
     { id: 1, image: girlsProduct, title: "Explore the Latest Fashion", subtitle: "Trendy Styles Just for You", name:"Makeup essential" },
-    { id: 3, image: birthday, title: "Celebrate Every Moment", subtitle: "Find Perfect Gifts for Every Occasion", name:"Birthday" },
+    { id: 2, image: shreeaurahero, title: "Explore product", subtitle: "Find the Perfect Gift for Every Occasion", name:"Welcome" },
   ];
 
   const pricePlans = [
@@ -119,7 +119,7 @@ useEffect(() => {
                 {slide.subtitle}
               </motion.p>
               <motion.button
-                onClick={() => setCurrentPage("search", { category: slide.name })}
+                onClick={() => setCurrentPage("search")}
                 className="bg-[#FFD369] text-[#1a0f1a] font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-[#FFD369]/50 hover:bg-[#ffcb47] transition-all"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}

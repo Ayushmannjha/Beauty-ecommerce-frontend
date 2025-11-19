@@ -38,6 +38,9 @@ useEffect(() => {
   const qBrand = params.get("brand") || "";
   const qPrice = params.get("price") ? Number(params.get("price")) : undefined;
 
+
+  
+
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -124,43 +127,45 @@ useEffect(() => {
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      if (!qName && !qCategory && !qBrand && qPrice === undefined) {
-        setAllProducts([]);
-        setProducts([]);
-        return;
+  const noParams =
+    !qName && !qCategory && !qBrand && qPrice === undefined;
+
+  const fetchProducts = async () => {
+    try {
+      let results: Product[] = [];
+
+      if (noParams) {
+        // Fetch all products when no filters are provided
+        const res = await HomePageApi.getAllProducts();
+        results = res.data;
+      } else if (qName?.trim()) {
+        const res = await HomePageApi.searchProductsByName(qName.trim());
+        results = res.data;
+      } else if (qCategory) {
+        const res = await HomePageApi.getProductsByCategory(qCategory);
+        results = res.data;
+      } else if (qBrand) {
+        const res = await HomePageApi.searchByBrand(qBrand);
+        results = res.data;
+      } else if (qPrice !== undefined) {
+        const res = await HomePageApi.searchByPrice(qPrice);
+        results = res.data;
       }
-      setLoading(true);
-      try {
-        let results: Product[] = [];
 
-        if (qName.trim()) {
-          const res = await HomePageApi.searchProductsByName(qName.trim());
-          results = res.data;
-        } else if (qCategory) {
-          const res = await HomePageApi.getProductsByCategory(qCategory);
-          results = res.data;
-        } else if (qBrand) {
-          const res = await HomePageApi.searchByBrand(qBrand);
-          results = res.data;
-        } else if (qPrice !== undefined) {
-          const res = await HomePageApi.searchByPrice(qPrice);
-          results = res.data;
-        }
+      setAllProducts(results || []);
+      setProducts(results || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setAllProducts([]);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setAllProducts(results || []);
-        setProducts(results || []);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setAllProducts([]);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [qName, qCategory, qBrand, qPrice]);
+  setLoading(true);
+  fetchProducts();
+}, [qName, qCategory, qBrand, qPrice]);
 
   useEffect(() => {
     let filtered = [...allProducts];
