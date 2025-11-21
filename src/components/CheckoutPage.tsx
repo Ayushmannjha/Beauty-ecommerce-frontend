@@ -31,9 +31,9 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const { items, clearCart,cartTotal } = useCart();
   const { user } = useAuth();
   const subtotal = cartTotal;
-  const tax = subtotal * 0.18;
   
-  const total = subtotal + tax;
+  
+  const total = subtotal;
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [suser, setSuser] = useState<User | null>(null);
@@ -339,8 +339,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               <span>₹{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Tax (18%)</span>
-              <span>₹{tax.toFixed(2)}</span>
+              
             </div>
             <div className="flex justify-between text-lg font-bold text-[#FFD369] pt-2 border-t border-white/10">
               <span>Total</span>

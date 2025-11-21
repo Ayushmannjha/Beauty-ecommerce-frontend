@@ -15,7 +15,7 @@ interface CartPageProps {
 }
 
 export default function CartPage({ setCurrentPage }: CartPageProps) {
-  const { items, updateQuantity, removeFromCart, getCartTotal ,setCartTotal} = useCart();
+  const { items, updateQuantity, removeFromCart, getCartTotal ,setCartTotal, cartTotal} = useCart();
   const subtotal = getCartTotal();
 
   const tax = subtotal * 0.18;
@@ -27,6 +27,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
 
   const total = subtotal + tax + shipping;
   setCartTotal(total);
+console.log("Cart Total in CartPage:", cartTotal);
   const location = useLocation();
   
   // Scroll to top on page mount
