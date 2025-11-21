@@ -134,35 +134,49 @@ useEffect(() => {
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
 
   useEffect(() => {
-  const noParams =
-    !qName && !qCategory && !qBrand && qPrice === undefined;
-
-  const fetchProducts = async () => {
+  const fetchAllProducts = async () => {
+    setLoading(true);
     try {
-      let results: Product[] = [];
+      const res = await HomePageApi.getAllProducts();
+      const results: Product[] = res.data || [];
+      setAllProducts(results);
 
-      if (noParams) {
-        // Fetch all products when no filters are provided
-        const res = await HomePageApi.getAllProducts();
-        results = res.data;
-      } else if (qName?.trim()) {
-        const res = await HomePageApi.searchProductsByName(qName.trim());
-        results = res.data;
-      } else if (qCategory) {
-        const res = await HomePageApi.getProductsByCategory(qCategory);
-        results = res.data;
-      } else if (qBrand) {
-        const res = await HomePageApi.searchByBrand(qBrand);
-        results = res.data;
-      } else if (qPrice !== undefined) {
-        const res = await HomePageApi.searchByPrice(qPrice);
-        results = res.data;
+      // Apply initial URL param filters
+      let filtered = [...results];
+
+      if (qName) {
+        filtered = filtered.filter(p =>
+          p.name.toLowerCase().includes(qName.toLowerCase())
+        );
       }
-      console.log("Fetched products:", results);
-      setAllProducts(results || []);
-      setProducts(results || []);
-    } catch (err) {
-      console.error("Error fetching products:", err);
+      if (qCategory) {
+        filtered = filtered.filter(p => p.category === qCategory);
+      }
+      if (qBrand) {
+        filtered = filtered.filter(p => p.brand === qBrand);
+      }
+      if (qPrice !== undefined) {
+        filtered = filtered.filter(p => p.sellingPrice <= qPrice);
+      }
+
+      setProducts(filtered);
+      // Initialize filters state for UI
+      setFilters({
+        categories: qCategory ? [qCategory] : [],
+        brands: qBrand ? [qBrand] : [],
+        priceRange: [0, qPrice ?? 200],
+        rating: 0,
+        inStock: false,
+      });
+      setPendingFilters({
+        categories: qCategory ? [qCategory] : [],
+        brands: qBrand ? [qBrand] : [],
+        priceRange: [0, qPrice ?? 200],
+        rating: 0,
+        inStock: false,
+      });
+    } catch (error) {
+      console.error(error);
       setAllProducts([]);
       setProducts([]);
     } finally {
@@ -170,8 +184,7 @@ useEffect(() => {
     }
   };
 
-  setLoading(true);
-  fetchProducts();
+  fetchAllProducts();
 }, [qName, qCategory, qBrand, qPrice]);
 
   useEffect(() => {
